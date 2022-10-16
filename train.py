@@ -113,7 +113,8 @@ def train(args):
     if preprocess_data:
 
         # if dataset == 'rwf2000':
-        os.makedirs(os.path.join(dataset, 'processed'))
+        if not os.path.exists(os.path.join(dataset, 'processed')):
+            os.makedirs(os.path.join(dataset, 'processed'))
         convert_dataset_to_npy(src= dirinp, dest='{}/processed'.format(
             dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size)
         # else:
