@@ -76,8 +76,6 @@ def train(args):
 
     save_path = args.savePath
 
-    save_processed_path = args.saveProcessedPath
-
     resume_path = args.resumePath
 
     background_suppress = args.noBackgroundSuppression
@@ -115,8 +113,8 @@ def train(args):
     if preprocess_data:
 
         # if dataset == 'rwf2000':
-        os.mkdir(os.path.join(save_processed_path,dataset, 'processed'))
-        convert_dataset_to_npy(src= dirinp, dest='{}/{}/processed'.format(save_processed_path,
+        os.makedirs(os.path.join(dataset, 'processed'))
+        convert_dataset_to_npy(src= dirinp, dest='{}/processed'.format(
             dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size)
         # else:
         #     if os.path.exists('{}'.format(dataset)):
@@ -128,7 +126,7 @@ def train(args):
         #     os.mkdir(os.path.join(dataset,'processed'))
         #     convert_dataset_to_npy(src='{}/videos'.format(dataset),dest='{}/processed'.format(dataset), crop_x_y=crop_dark[dataset], target_frames=vid_len, frame_size= dataset_frame_size )
 
-    train_generator = DataGenerator(directory = '{}/{}/processed/train'.format(dataset, save_processed_path),
+    train_generator = DataGenerator(directory = '{}/processed/train'.format(dataset),
                                     batch_size = batch_size,
                                     data_augmentation = True,
                                     shuffle = True,
@@ -140,7 +138,7 @@ def train(args):
                                     dataset = dataset,
                                     mode = mode)
 
-    test_generator = DataGenerator(directory = '{}/{}/processed/test'.format(dataset, save_processed_path),
+    test_generator = DataGenerator(directory = '{}/processed/test'.format(dataset),
                                     batch_size = batch_size,
                                     data_augmentation = False,
                                     shuffle = False,
@@ -238,7 +236,7 @@ def setArgs():
     parser.add_argument('--resumePath', type=str, default='NOT_SET', help='path to the weights for resuming from previous checkpoint')
     parser.add_argument('--resumeLearningRate', type=float, default=5e-05, help='learning rate to resume training from')
     parser.add_argument('--dataset', type=str, default='rwf2000', help='dataset - rwf2000, hockey, movies', choices=['rwf2000', 'hockey', 'movies'])
-    parser.add_argument('--saveProcessedPath', type=str, help='path to save the processed data')
+   
 
     # args = parser.parse_args()
     # train(args)
@@ -246,7 +244,6 @@ def setArgs():
 
 def trainTwoStreamSeparateConvLSTM(dirinp
                                 , save_path
-                                , save_processed_path
                                 , dataset = 'rwf2000'
                                 ,resume_path = 'NOT_SET'
                                 ,resume = False
@@ -266,8 +263,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--fusionType', fusion_type,
             '--savePath', save_path,
             '--resumePath', resume_path,
-            '--dataset', dataset,
-            '--saveProcessedPath', save_processed_path
+            '--dataset', dataset
         ])
     else:
         args = setArgs().parse_args([
@@ -278,7 +274,6 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--lstmType', lstm_type,
             '--fusionType', fusion_type,
             '--savePath', save_path,
-            '--dataset', dataset,
-            '--saveProcessedPath', save_processed_path
+            '--dataset', dataset
         ])
     train(args)
