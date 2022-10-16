@@ -431,12 +431,12 @@ class DataGenerator(Sequence):
 
 
 # Demo code
-if __name__ == "__main__":
-    dataset = 'hockey'
-    train_generator = DataGenerator(directory='../Datasets/{}/train'.format(dataset),
-                                    batch_size=batch_size,
-                                    data_augmentation=True,
-                                    shuffle=False,
-                                    one_hot=False,
-                                    target_frames=20)
-    print(train_generator)
+# if __name__ == "__main__":
+#     dataset = 'hockey'
+#     train_generator = DataGenerator(directory='../Datasets/{}/train'.format(dataset),
+#                                     batch_size=batch_size,
+#                                     data_augmentation=True,
+#                                     shuffle=False,
+#                                     one_hot=False,
+#                                     target_frames=20)
+#     print(train_generator)
