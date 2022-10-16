@@ -1,7 +1,6 @@
 import os
 import math
 import random
-from sklearn.model_selection import KFold
 import shutil
 import cv2
 from tqdm import tqdm
@@ -170,8 +169,8 @@ def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=3
 def convert_dataset_to_npy(src, dest, crop_x_y=None, target_frames=None, frame_size=320):
     if not os.path.isdir(dest):
         os.path.mkdir(dest)
-    for dir_ in ['train', 'val']:
-        for cat_ in ['Fight', 'NonFight']:
+    for dir_ in ['train', 'valid']:
+        for cat_ in ['fight', 'nonFight']:
             path1 = os.path.join(src, dir_, cat_)
             path2 = os.path.join(dest, dir_, cat_)
             Save2Npy(file_dir=path1, save_dir=path2, crop_x_y=crop_x_y,

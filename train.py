@@ -60,11 +60,11 @@ def train(args):
 
     lstm_type = args.lstmType # attensepconv
 
-    crop_dark = {
-        'hockey' : (16,45),
-        'movies' : (18,48),
-        'rwf2000': (0,0)
-    }
+    # crop_dark = {
+    #     'hockey' : (16,45),
+    #     'movies' : (18,48),
+    #     'rwf2000': (0,0)
+    # }
 
     #---------------------------------------------------
 
@@ -254,9 +254,9 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 , fusion_type = 'M'):
     if resume:
         args = setArgs().parse_args([
-            '--numEpochs', num_epochs,
-            '--vidLen', vid_len,
-            '--batchSize', batch_size,
+            '--numEpochs', str(num_epochs),
+            '--vidLen', str(vid_len),
+            '--batchSize', str(batch_size),
             '--resume',
             '--dirinp', dirinp,
             '--lstmType', lstm_type,
@@ -267,9 +267,9 @@ def trainTwoStreamSeparateConvLSTM(dirinp
         ])
     else:
         args = setArgs().parse_args([
-            '--numEpochs', num_epochs,
-            '--vidLen', vid_len,
-            '--batchSize', batch_size,
+            '--numEpochs', str(num_epochs),
+            '--vidLen', str(vid_len),
+            '--batchSize', str(batch_size),
             '--dirinp', dirinp,
             '--lstmType', lstm_type,
             '--fusionType', fusion_type,
