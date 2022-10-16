@@ -139,7 +139,7 @@ def train(args):
                                     dataset = dataset,
                                     mode = mode)
 
-    test_generator = DataGenerator(directory = '{}/processed/test'.format(dataset),
+    test_generator = DataGenerator(directory = '{}/processed/val'.format(dataset),
                                     batch_size = batch_size,
                                     data_augmentation = False,
                                     shuffle = False,
