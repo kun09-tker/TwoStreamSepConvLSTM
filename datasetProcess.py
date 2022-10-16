@@ -159,7 +159,7 @@ def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=3
         if target_frames:
             assert (data.shape == (target_frames,
                                    frame_size, frame_size, 3))
-        os.remove(video_path)
+        # os.remove(video_path)
         data = np.uint8(data)
         # Save as .npy file
         np.save(save_path, data)
