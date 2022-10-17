@@ -11,7 +11,7 @@ class SaveTrainingCurves(CB):
 
         self.save_path = save_path   
         if not os.path.exists(self.save_path):
-            os.mkdir(self.save_path)    
+            os.makedirs(self.save_path)    
         historyInDrivePath = os.path.join(self.save_path , 'history.csv')
 
         history = None
