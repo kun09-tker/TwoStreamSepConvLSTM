@@ -121,10 +121,10 @@ def train(args):
         #     if os.path.exists('{}'.format(dataset)):
         #         shutil.rmtree('{}'.format(dataset))
         #     split = train_test_split(dataset_name=dataset,source=dataset_videos[dataset])
-        #     os.mkdir(dataset)
-        #     os.mkdir(os.path.join(dataset,'videos'))
+        #     os.makedirs(dataset)
+        #     os.makedirs(os.path.join(dataset,'videos'))
         #     move_train_test(dest='{}/videos'.format(dataset),data=split)
-        #     os.mkdir(os.path.join(dataset,'processed'))
+        #     os.makedirs(os.path.join(dataset,'processed'))
         #     convert_dataset_to_npy(src='{}/videos'.format(dataset),dest='{}/processed'.format(dataset), crop_x_y=crop_dark[dataset], target_frames=vid_len, frame_size= dataset_frame_size )
 
     train_generator = DataGenerator(directory = '{}/processed/train'.format(dataset),

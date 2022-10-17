@@ -41,16 +41,16 @@ def move_train_test(dest, data):
     trainFightVideos, testFightVideos, trainNonFightVideos, testNonFightVideos = data
     trainPath = os.path.join(dest, 'train')
     testPath = os.path.join(dest, 'test')
-    os.mkdir(trainPath)
-    os.mkdir(testPath)
+    os.makedirs(trainPath)
+    os.makedirs(testPath)
     trainFightPath = os.path.join(trainPath, 'fight')
     trainNonFightPath = os.path.join(trainPath, 'nonFight')
     testFightPath = os.path.join(testPath, 'fight')
     testNonFightPath = os.path.join(testPath, 'nonFight')
-    os.mkdir(trainFightPath)
-    os.mkdir(trainNonFightPath)
-    os.mkdir(testFightPath)
-    os.mkdir(testNonFightPath)
+    os.makedirs(trainFightPath)
+    os.makedirs(trainNonFightPath)
+    os.makedirs(testFightPath)
+    os.makedirs(testNonFightPath)
     print("moving files...")
     for filepath in trainFightVideos:
         shutil.copy(filepath, trainFightPath)
@@ -168,7 +168,7 @@ def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=3
 
 def convert_dataset_to_npy(src, dest, crop_x_y=None, target_frames=None, frame_size=320):
     if not os.path.isdir(dest):
-        os.path.mkdir(dest)
+        os.path.makedirs(dest)
     for dir_ in ['train', 'val']:
         for cat_ in ['Fight', 'NonFight']:
             path1 = os.path.join(src, dir_, cat_)
