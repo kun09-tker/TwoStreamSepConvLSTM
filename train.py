@@ -180,9 +180,9 @@ def train(args):
     model.summary(line_length=140)
     print('> Optimizer : ', model.optimizer.get_config())
 
-    dot_img_file = 'model_architecture.png'
-    print('> plotting the model architecture and saving at ', dot_img_file)
-    plot_model(model, to_file=dot_img_file, show_shapes=True)
+    # dot_img_file = 'model_architecture.png'
+    # print('> plotting the model architecture and saving at ', dot_img_file)
+    # plot_model(model, to_file=dot_img_file, show_shapes=True)
 
     #--------------------------------------------------
 
