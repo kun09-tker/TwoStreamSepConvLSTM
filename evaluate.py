@@ -98,10 +98,10 @@ def evaluate(args):
     #--------------------------------------------------
 
     test_results = model.evaluate(
-        step = len(test_generator)
+        steps = len(test_generator)
         , x = test_generator
         , verbose = 1
-        , wokers = 8
+        , workers = 8
         , use_multiprocessing = False
     )
     
