@@ -66,7 +66,7 @@ def evaluate(args):
 
         if not os.path.exists(os.path.join(dataset, 'processed')):
             os.makedirs(os.path.join(dataset, 'processed'))
-        convert_dataset_to_npy(src= dirinp, dest='{}/processed'.format(
+        convert_dataset_to_npy_evl(src= dirinp, dest='{}/processed'.format(
             dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size)
  
     test_generator = DataGenerator(directory = '{}/processed/test'.format(dataset),

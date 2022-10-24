@@ -175,3 +175,12 @@ def convert_dataset_to_npy(src, dest, crop_x_y=None, target_frames=None, frame_s
             path2 = os.path.join(dest, dir_, cat_)
             Save2Npy(file_dir=path1, save_dir=path2, crop_x_y=crop_x_y,
                      target_frames=target_frames, frame_size=frame_size)
+
+def convert_dataset_to_npy_evl(src, dest, crop_x_y=None, target_frames=None, frame_size=320):
+    if not os.path.isdir(dest):
+        os.path.makedirs(dest)
+    for cat_ in ['Fight', 'NonFight']:
+        path1 = os.path.join(src, "test", cat_)
+        path2 = os.path.join(dest, "test", cat_)
+        Save2Npy(file_dir=path1, save_dir=path2, crop_x_y=crop_x_y,
+                    target_frames=target_frames, frame_size=frame_size)
