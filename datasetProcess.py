@@ -76,18 +76,18 @@ def crop_img_remove_black(img, x_crop, y_crop, y, x):
     return frame
 
 
-def uniform_sampling(video, target_frames=64):
+def uniform_sampling(video, target_frames=64,resize=320):
     # get total frames of input video and calculate sampling interval
     len_frames = video.shape[0]
-    interval = int(np.ceil(len_frames/target_frames))
+    interval = 5
     # init empty list for sampled video and
     sampled_video = []
     for i in range(0, len_frames, interval):
         sampled_video.append(video[i])
     # calculate numer of padded frames and fix it
-    num_pad = target_frames - len(sampled_video)
+    num_pad = target_frames - len(sampled_video)%target_frames
     padding = []
-    if num_pad > 0:
+    if num_pad > 0 and num_pad <= np.ceil(target_frames*0.9):
         for i in range(-num_pad, 0):
             try:
                 padding.append(video[i])
@@ -95,7 +95,7 @@ def uniform_sampling(video, target_frames=64):
                 padding.append(video[0])
         sampled_video += padding
     # get sampled video
-    return np.array(sampled_video)
+    return np.array(sampled_video).reshape(-1, target_frames, resize, resize, 3)
 
 
 def Video2Npy(file_path, resize=320, crop_x_y=None, target_frames=None):
@@ -132,7 +132,7 @@ def Video2Npy(file_path, resize=320, crop_x_y=None, target_frames=None):
     finally:
         frames = np.array(frames)
         cap.release()
-    frames = uniform_sampling(frames, target_frames=target_frames)
+    frames = uniform_sampling(frames, target_frames=target_frames,resize=resize)
     return frames
 
 
@@ -151,18 +151,19 @@ def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=3
         video_name = v.split('.')[0]
         # Get src
         video_path = os.path.join(file_dir, v)
-        # Get dest
-        save_path = os.path.join(save_dir, video_name+'.npy')
         # Load and preprocess video
-        data = Video2Npy(file_path=video_path, resize=frame_size,
+        datas = Video2Npy(file_path=video_path, resize=frame_size,
                          crop_x_y=crop_x_y, target_frames=target_frames)
-        if target_frames:
-            assert (data.shape == (target_frames,
-                                   frame_size, frame_size, 3))
-        # os.remove(video_path)
-        data = np.uint8(data)
-        # Save as .npy file
-        np.save(save_path, data)
+        for index,data in enumerate(datas):
+            if target_frames:
+                assert (data.shape == (target_frames,
+                                    frame_size, frame_size, 3))
+            # Get dest
+            save_path = os.path.join(save_dir, f'{video_name}_{index}.npy')
+            # os.remove(video_path)
+            data = np.uint8(data)
+            # Save as .npy file
+            np.save(save_path, data)
     return None
 
 
