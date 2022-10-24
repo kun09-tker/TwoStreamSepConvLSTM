@@ -60,6 +60,12 @@ def evaluate(args):
 
     one_hot = False
 
+    crop_dark = {
+        'hockey' : (16,45),
+        'movies' : (18,48),
+        'rwf2000': (0,0)
+    }
+
     #----------------------------------------------------
 
     if preprocess_data:
@@ -67,7 +73,7 @@ def evaluate(args):
         if not os.path.exists(os.path.join(dataset, 'processed')):
             os.makedirs(os.path.join(dataset, 'processed'))
         convert_dataset_to_npy_evl(src= dirinp, dest='{}/processed'.format(
-            dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size)
+            dataset), crop_x_y=crop_dark[dataset], target_frames=vid_len, frame_size= dataset_frame_size)
  
     test_generator = DataGenerator(directory = '{}/processed/test'.format(dataset),
                                     batch_size = batch_size,
