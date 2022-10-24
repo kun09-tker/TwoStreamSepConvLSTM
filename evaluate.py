@@ -1,4 +1,3 @@
-from concurrent.futures.thread import _worker
 import os
 os.environ['PYTHONHASHSEED'] = '42'
 from numpy.random import seed
@@ -11,10 +10,7 @@ import models
 from utils import *
 from dataGenerator import *
 from datasetProcess import *
-from tensorflow.keras.models import load_model
-from tensorflow.keras.utils import plot_model
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import ModelCheckpoint,LearningRateScheduler
 import argparse
 
 def evaluate(args):
