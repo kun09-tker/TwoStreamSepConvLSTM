@@ -94,6 +94,8 @@ def uniform_sampling(video, target_frames=64,resize=320):
             except:
                 padding.append(video[0])
         sampled_video += padding
+    else:
+        sampled_video = sampled_video[:target_frames*(len(sampled_video)%target_frames)]
     # get sampled video
     return np.array(sampled_video).reshape(-1, target_frames, resize, resize, 3)
 
