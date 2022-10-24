@@ -217,7 +217,8 @@ def train(args):
         use_multiprocessing=False,
         callbacks= callback_list
     )
-
+    
+    model.save('save');
     #---------------------------------------------------
 
 def setArgs():
