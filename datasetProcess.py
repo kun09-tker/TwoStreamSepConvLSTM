@@ -98,7 +98,6 @@ def uniform_sampling(video, target_frames=64,resize=320,interval=5):
     else:
         sampled_video = sampled_video[:target_frames*(len(sampled_video)//target_frames)]
     # get sampled video
-    print(np.array(sampled_video).shape)
     return np.array(sampled_video).reshape(-1, target_frames, resize, resize, 3)
 
 
