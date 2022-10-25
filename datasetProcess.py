@@ -79,7 +79,7 @@ def crop_img_remove_black(img, x_crop, y_crop, y, x):
 def uniform_sampling(video, target_frames=64,resize=320):
     # get total frames of input video and calculate sampling interval
     len_frames = video.shape[0]
-    interval = 5
+    interval = 1
     # init empty list for sampled video and
     sampled_video = []
     for i in range(0, len_frames, interval):
@@ -89,7 +89,7 @@ def uniform_sampling(video, target_frames=64,resize=320):
       return None
     num_pad = target_frames - len(sampled_video)%target_frames
     padding = []
-    if num_pad > 0 and num_pad <= (target_frames - np.ceil(target_frames*0.9)):
+    if num_pad > 0 and num_pad <= 3:
         for i in range(-num_pad, 0):
             try:
                 padding.append(video[i])
@@ -97,8 +97,9 @@ def uniform_sampling(video, target_frames=64,resize=320):
                 padding.append(video[0])
         sampled_video += padding
     else:
-        sampled_video = sampled_video[:target_frames*(len(sampled_video)%target_frames)]
+        sampled_video = sampled_video[:target_frames*(len(sampled_video)//target_frames)]
     # get sampled video
+    print(np.array(sampled_video).shape)
     return np.array(sampled_video).reshape(-1, target_frames, resize, resize, 3)
 
 
