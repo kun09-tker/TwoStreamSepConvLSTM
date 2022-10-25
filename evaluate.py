@@ -45,6 +45,8 @@ def evaluate(args):
 
     lstm_type = args.lstmType 
 
+    itv = args.interval
+
     save_path = args.savePath
 
 
@@ -68,7 +70,7 @@ def evaluate(args):
         if not os.path.exists(os.path.join(dataset, 'processed')):
             os.makedirs(os.path.join(dataset, 'processed'))
         convert_dataset_to_npy_evl(src= dirinp, dest='{}/processed'.format(
-            dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size)
+            dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size, interval=itv)
  
     test_generator = DataGenerator(directory = '{}/processed/test'.format(dataset),
                                     batch_size = batch_size,
@@ -99,7 +101,7 @@ def evaluate(args):
     #--------------------------------------------------
 
     test_results = model.evaluate(
-        steps = 1000
+        steps = len(test_generator)
         , x = test_generator
         , verbose = 1
         , workers = 8
@@ -127,6 +129,7 @@ def setArgs():
     parser.add_argument('--savePath', type=str, default='/gdrive/My Drive/THESIS/Data', help='folder path to save the models')
     parser.add_argument('--weightsPath', type=str, default='NOT_SET', help='path to the weights pretrained on rwf dataset')
     parser.add_argument('--dataset', type=str, default='rwf2000', help='dataset - rwf2000, hockey, movies', choices=['rwf2000', 'hockey', 'movies'])
+    parser.add_argument('--interval', type=int, default=1, help='interval between frames')
    
 
     # args = parser.parse_args()
@@ -137,6 +140,7 @@ def evaluateTwoStreamSeparateConvLSTM(dirinp
                                 , save_path
                                 , weights_path
                                 , dataset = 'rwf2000'
+                                , interval = 5
                                 , vid_len = 32
                                 , batch_size = 4
                                 , lstm_type = 'sepconv'
@@ -150,6 +154,7 @@ def evaluateTwoStreamSeparateConvLSTM(dirinp
         '--fusionType', fusion_type,
         '--savePath', save_path,
         '--dataset', dataset,
-        '--weightsPath', weights_path
+        '--weightsPath', weights_path,
+        '--interval', str(interval)
     ])
     evaluate(args)

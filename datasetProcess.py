@@ -76,10 +76,9 @@ def crop_img_remove_black(img, x_crop, y_crop, y, x):
     return frame
 
 
-def uniform_sampling(video, target_frames=64,resize=320):
+def uniform_sampling(video, target_frames=64,resize=320,interval=5):
     # get total frames of input video and calculate sampling interval
     len_frames = video.shape[0]
-    interval = 1
     # init empty list for sampled video and
     sampled_video = []
     for i in range(0, len_frames, interval):
@@ -103,7 +102,7 @@ def uniform_sampling(video, target_frames=64,resize=320):
     return np.array(sampled_video).reshape(-1, target_frames, resize, resize, 3)
 
 
-def Video2Npy(file_path, resize=320, crop_x_y=None, target_frames=None):
+def Video2Npy(file_path, resize=320, crop_x_y=None, target_frames=None,interval=5):
     """Load video and tansfer it into .npy format
     Args:
         file_path: the path of video file
@@ -137,7 +136,7 @@ def Video2Npy(file_path, resize=320, crop_x_y=None, target_frames=None):
     finally:
         frames = np.array(frames)
         cap.release()
-    frames = uniform_sampling(frames, target_frames=target_frames,resize=resize)
+    frames = uniform_sampling(frames, target_frames=target_frames,resize=resize,interval=interval)
     return frames
 
 
@@ -173,7 +172,7 @@ def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=3
     return None
 
 
-def convert_dataset_to_npy(src, dest, crop_x_y=None, target_frames=None, frame_size=320):
+def convert_dataset_to_npy(src, dest, crop_x_y=None, target_frames=None, frame_size=320,interval=5):
     if not os.path.isdir(dest):
         os.path.makedirs(dest)
     for dir_ in ['train', 'val']:
@@ -181,13 +180,13 @@ def convert_dataset_to_npy(src, dest, crop_x_y=None, target_frames=None, frame_s
             path1 = os.path.join(src, dir_, cat_)
             path2 = os.path.join(dest, dir_, cat_)
             Save2Npy(file_dir=path1, save_dir=path2, crop_x_y=crop_x_y,
-                     target_frames=target_frames, frame_size=frame_size)
+                     target_frames=target_frames, frame_size=frame_size,interval=interval)
 
-def convert_dataset_to_npy_evl(src, dest, crop_x_y=None, target_frames=None, frame_size=320):
+def convert_dataset_to_npy_evl(src, dest, crop_x_y=None, target_frames=None, frame_size=320,interval=5):
     if not os.path.isdir(dest):
         os.path.makedirs(dest)
     for cat_ in ['Fight', 'NonFight']:
         path1 = os.path.join(src, "test", cat_)
         path2 = os.path.join(dest, "test", cat_)
         Save2Npy(file_dir=path1, save_dir=path2, crop_x_y=crop_x_y,
-                    target_frames=target_frames, frame_size=frame_size)
+                    target_frames=target_frames, frame_size=frame_size, interval=interval)
