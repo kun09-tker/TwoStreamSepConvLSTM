@@ -99,7 +99,7 @@ def evaluate(args):
     #--------------------------------------------------
 
     test_results = model.evaluate(
-        steps = len(test_generator)
+        steps = 1000
         , x = test_generator
         , verbose = 1
         , workers = 8
