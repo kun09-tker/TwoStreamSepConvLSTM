@@ -85,9 +85,11 @@ def uniform_sampling(video, target_frames=64,resize=320):
     for i in range(0, len_frames, interval):
         sampled_video.append(video[i])
     # calculate numer of padded frames and fix it
+    if (target_frames - len(sampled_video)) > 3:
+      return None
     num_pad = target_frames - len(sampled_video)%target_frames
     padding = []
-    if num_pad > 0 and num_pad <= np.ceil(target_frames*0.9):
+    if num_pad > 0 and num_pad <= (target_frames - np.ceil(target_frames*0.9)):
         for i in range(-num_pad, 0):
             try:
                 padding.append(video[i])
@@ -156,16 +158,17 @@ def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=3
         # Load and preprocess video
         datas = Video2Npy(file_path=video_path, resize=frame_size,
                          crop_x_y=crop_x_y, target_frames=target_frames)
-        for index,data in enumerate(datas):
-            if target_frames:
-                assert (data.shape == (target_frames,
-                                    frame_size, frame_size, 3))
-            # Get dest
-            save_path = os.path.join(save_dir, f'{video_name}_{index}.npy')
-            # os.remove(video_path)
-            data = np.uint8(data)
-            # Save as .npy file
-            np.save(save_path, data)
+        if datas is not None:
+          for index,data in enumerate(datas):
+              if target_frames:
+                  assert (data.shape == (target_frames,
+                                      frame_size, frame_size, 3))
+              # Get dest
+              save_path = os.path.join(save_dir, f'{video_name}_{index}.npy')
+              # os.remove(video_path)
+              data = np.uint8(data)
+              # Save as .npy file
+              np.save(save_path, data)
     return None
 
 
