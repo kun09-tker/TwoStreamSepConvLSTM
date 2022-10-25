@@ -78,6 +78,8 @@ def train(args):
 
     resume_path = args.resumePath
 
+    itv = args.interval
+
     background_suppress = args.noBackgroundSuppression
 
     if resume_path == "NOT_SET":
@@ -116,7 +118,7 @@ def train(args):
         if not os.path.exists(os.path.join(dataset, 'processed')):
             os.makedirs(os.path.join(dataset, 'processed'))
         convert_dataset_to_npy(src= dirinp, dest='{}/processed'.format(
-            dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size)
+            dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size, interval=itv)
         # else:
         #     if os.path.exists('{}'.format(dataset)):
         #         shutil.rmtree('{}'.format(dataset))
@@ -238,7 +240,7 @@ def setArgs():
     parser.add_argument('--resumePath', type=str, default='NOT_SET', help='path to the weights for resuming from previous checkpoint')
     parser.add_argument('--resumeLearningRate', type=float, default=5e-05, help='learning rate to resume training from')
     parser.add_argument('--dataset', type=str, default='rwf2000', help='dataset - rwf2000, hockey, movies', choices=['rwf2000', 'hockey', 'movies'])
-   
+    parser.add_argument('--interval', type=int, default=1, help='interval between frames to be used for frame difference')
 
     # args = parser.parse_args()
     # train(args)
@@ -248,6 +250,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 , save_path
                                 , dataset = 'rwf2000'
                                 ,resume_path = 'NOT_SET'
+                                ,interval = 5
                                 ,resume = False
                                 ,num_epochs = 50
                                 , vid_len = 32
@@ -265,7 +268,8 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--fusionType', fusion_type,
             '--savePath', save_path,
             '--resumePath', resume_path,
-            '--dataset', dataset
+            '--dataset', dataset,
+            '--interval', str(interval)
         ])
     else:
         args = setArgs().parse_args([
@@ -276,6 +280,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--lstmType', lstm_type,
             '--fusionType', fusion_type,
             '--savePath', save_path,
-            '--dataset', dataset
+            '--dataset', dataset,
+            '--interval', str(interval)
         ])
     train(args)
