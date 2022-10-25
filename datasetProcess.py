@@ -139,7 +139,7 @@ def Video2Npy(file_path, resize=320, crop_x_y=None, target_frames=None,interval=
     return frames
 
 
-def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=320):
+def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=320, interval=5):
     """Transfer all the videos and save them into specified directory
     Args:
         file_dir: source folder of target videos
@@ -156,7 +156,7 @@ def Save2Npy(file_dir, save_dir, crop_x_y=None, target_frames=None, frame_size=3
         video_path = os.path.join(file_dir, v)
         # Load and preprocess video
         datas = Video2Npy(file_path=video_path, resize=frame_size,
-                         crop_x_y=crop_x_y, target_frames=target_frames)
+                         crop_x_y=crop_x_y, target_frames=target_frames,interval=interval)
         if datas is not None:
           for index,data in enumerate(datas):
               if target_frames:
