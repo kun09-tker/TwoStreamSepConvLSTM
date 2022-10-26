@@ -113,7 +113,6 @@ def evaluate(args):
     print("====================")
     print("> Test Loss:", test_results[0])
     print("> Test Accuracy:", test_results[1])
-    print("> Test F1:", test_results[2])
     print("====================")
     save_as_csv(test_results, save_path, 'test_resuls.csv')
 
