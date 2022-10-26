@@ -12,6 +12,24 @@ from dataGenerator import *
 from datasetProcess import *
 from tensorflow.keras.optimizers import Adam
 import argparse
+from keras import backend as K
+
+def recall_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+def precision_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+def f1_m(y_true, y_pred):
+    precision = precision_m(y_true, y_pred)
+    recall = recall_m(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
 
 def evaluate(args):
 
@@ -94,7 +112,7 @@ def evaluate(args):
 
     optimizer = Adam(lr=4e-04, amsgrad=True)
     loss = 'binary_crossentropy'
-    model.compile(optimizer=optimizer, loss=loss, metrics=['acc'])
+    model.compile(optimizer=optimizer, loss=loss, metrics=['acc',f1_m,precision_m, recall_m])
     model.load_weights(f'{weightsPath}').expect_partial()
     model.trainable = False
 
@@ -113,6 +131,7 @@ def evaluate(args):
     print("====================")
     print("> Test Loss:", test_results[0])
     print("> Test Accuracy:", test_results[1])
+    print("> Test F1:", test_results[2])
     print("====================")
     save_as_csv(test_results, save_path, 'test_resuls.csv')
 
