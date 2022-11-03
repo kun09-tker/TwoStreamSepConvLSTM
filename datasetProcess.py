@@ -180,6 +180,7 @@ def convert_dataset_to_npy(src, dest, crop_x_y=None, target_frames=None, frame_s
         for cat_ in ['Fight', 'NonFight']:
             path1 = os.path.join(src, dir_, cat_)
             path2 = os.path.join(dest, dir_, cat_)
+            print(path2)
             Save2Npy(file_dir=path1, save_dir=path2, crop_x_y=crop_x_y,
                      target_frames=target_frames, frame_size=frame_size,interval=interval)
 
