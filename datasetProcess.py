@@ -80,7 +80,7 @@ def uniform_sampling(video, target_frames=64,resize=320,interval=5):
     # get total frames of input video and calculate sampling interval
     len_frames = video.shape[0]
     if interval == 0:
-        interval = int(np.ceil(len_frames/target_frames))
+        interval = int(len_frames//target_frames)
     # init empty list for sampled video and
     sampled_video = []
     for i in range(0, len_frames, interval):
