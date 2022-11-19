@@ -239,7 +239,7 @@ def setArgs():
     # parser.add_argument('--rwfPretrainedPath', type=str, default='NOT_SET', help='path to the weights pretrained on rwf dataset')
     parser.add_argument('--resumePath', type=str, default='NOT_SET', help='path to the weights for resuming from previous checkpoint')
     parser.add_argument('--resumeLearningRate', type=float, default=5e-05, help='learning rate to resume training from')
-    parser.add_argument('--dataset', type=str, default='rwf2000', help='dataset - rwf2000, hockey, movies', choices=['rwf2000', 'hockey', 'movies'])
+    parser.add_argument('--dataset', type=str, default='rwf2000', help='dataset - rwf2000, hockey, movies')
     parser.add_argument('--interval', type=int, default=1, help='interval between frames to be used for frame difference')
 
     # args = parser.parse_args()
