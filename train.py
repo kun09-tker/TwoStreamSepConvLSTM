@@ -37,12 +37,13 @@ def train(args):
     dirinp = args.dirinp # ['rwf2000','movies','hockey']
     # dataset_videos = {'hockey':'raw_videos/HockeyFights','movies':'raw_videos/movies'}
     dataset = args.dataset
-    if dataset == "rwf2000":
-        initial_learning_rate = 4e-04
-    elif dataset == "hockey":
+#     if dataset == "rwf2000":
+    if dataset == "hockey":
         initial_learning_rate = 1e-06 
     elif dataset == "movies":
         initial_learning_rate = 1e-05 
+    else:
+        initial_learning_rate = 4e-04
     if dataset == "rwf2000":
         dataset_frame_size = 320
     else:
