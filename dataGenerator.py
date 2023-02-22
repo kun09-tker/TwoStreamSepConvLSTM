@@ -1,8 +1,10 @@
 from tensorflow.keras.utils import Sequence
 from .pyskl.vis_heatmap import to_pseudo_heatmap
-from mmcv import load
+from mmcv import load, dump
+from tqdm import tqdm
 import numpy as np
 import cv2
+import os
 
 class DataGenerator(Sequence):
     """Data Generator inherited from keras.utils.Sequence
@@ -22,19 +24,30 @@ class DataGenerator(Sequence):
         self.target_heatmap = target_heatmap
         self.mode = mode  # ["only_limbs","only_keypoints", "both"]
         self.resize = resize
-        # Load all the save_path of files, and create a dictionary that save the pair of "data:label"
-        self.X_video = load(self.directory)
-        # Print basic statistics information
+
+        self.X_name, self.Y_dict = self.spread_pkl()
         self.shuffle_index()
         return None
 
+    def spread_pkl(self):
+        if not os.path.exists("spread_pkl"):
+            os.mkdir("spread_pkl")
+        anno = load(self.directory)
+        X_name = []
+        Y_dict = {}
+        for video in anno:
+            X_name.append(video["frame_dir"])
+            Y_dict.update({video["frame_dir"]:video["label"]})
+            dump(video, f"spread_pkl/{video['frame_dir']}.pkl")
+        return X_name, Y_dict
+
     def shuffle_index(self):
-        self.indexes = np.arange(len(self.X_video))
+        self.indexes = np.arange(len(self.X_name))
         np.random.shuffle(self.indexes)
 
     def __len__(self):
         # calculate the iterations of each epoch
-        steps_per_epoch = np.ceil(len(self.X_video) / float(self.batch_size))
+        steps_per_epoch = np.ceil(len(self.X_name) / float(self.batch_size))
         return int(steps_per_epoch)
 
     def __getitem__(self, index):
@@ -44,34 +57,34 @@ class DataGenerator(Sequence):
         batch_indexs = self.indexes[index *
                                     self.batch_size:(index+1)*self.batch_size]
         # using batch_indexs to get path of current batch
-        batch_video = [self.X_video[k] for k in batch_indexs]
+        batch_name = [self.X_name[k] for k in batch_indexs]
         # get batch data
-        batch_x, batch_y = self.data_generation(batch_video)
+        batch_x, batch_y = self.data_generation(batch_name)
         return batch_x, batch_y
 
-    def data_generation(self, batch_video):
+    def data_generation(self, batch_name):
         # loading X
         batch_limbs = []
         batch_keypoints = []
         if self.mode == "both":
-            for x in batch_video:
+            for x in batch_name:
                 lb_data, kps_data = self.load_data(x)
                 batch_limbs.append(lb_data)
                 batch_keypoints.append(kps_data)
             batch_limbs = np.array(batch_limbs)
             batch_keypoints = np.array(batch_keypoints)
         elif self.mode == "only_limbs":
-            for x in batch_video:
+            for x in batch_name:
                 data = self.load_data(x)
                 batch_limbs.append(data)
             batch_limbs = np.array(batch_limbs) 
         elif self.mode == "only_keypoints":
-            for x in batch_video:
+            for x in batch_name:
                 kps_data = self.load_data(x)
                 batch_keypoints.append(kps_data)
             batch_keypoints = np.array(batch_keypoints) 
         # loading Y
-        batch_y = [x["label"] for x in batch_video]
+        batch_y = [self.Y_dict[x] for x in batch_name]
         batch_y = np.array(batch_y)
         if self.mode == "both":
             return [batch_limbs, batch_keypoints], batch_y
@@ -80,7 +93,7 @@ class DataGenerator(Sequence):
         if self.mode == "only_keypoints":
             return [batch_keypoints], batch_y
     
-    def load_data(self, video):
+    def load_data(self, name):
 
         if self.mode == "both":
             limbs = True
@@ -93,6 +106,13 @@ class DataGenerator(Sequence):
             keypoints = True
 
         if limbs:
+            video = load(f"spread_pkl/{name}.pkl")
+                        # uniform_sampling
+            indexes = np.arange(len(video))
+            np.random.shuffle(indexes)
+            indexes = np.sort(indexes[:self.target_heatmap])
+            video = [video[i] for i in indexes]
+
             heatmaps = to_pseudo_heatmap(video, flag="limb")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
@@ -103,13 +123,14 @@ class DataGenerator(Sequence):
                 data_limbs.append([cv2.resize(x, (neww, newh)) for x in hm])
             data_limbs = np.array(data_limbs).transpose(0, 2, 3, 1)
 
+        if keypoints:
+            video = load(f"spread_pkl/{name}.pkl")
             # uniform_sampling
-            indexes = np.arange(len(data_limbs))
+            indexes = np.arange(len(video))
             np.random.shuffle(indexes)
             indexes = np.sort(indexes[:self.target_heatmap])
-            data_limbs = [data_limbs[i] for i in indexes]
-
-        if keypoints:
+            video = [video[i] for i in indexes]
+        
             heatmaps = to_pseudo_heatmap(video, flag="keypoint")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
@@ -119,12 +140,6 @@ class DataGenerator(Sequence):
             for hm in heatmaps:
                 data_kps.append([cv2.resize(x, (neww, newh)) for x in hm])
             data_kps = np.array(data_kps).transpose(0, 2, 3, 1)
-
-            # uniform_sampling
-            indexes = np.arange(len(data_kps))
-            np.random.shuffle(indexes)
-            indexes = np.sort(indexes[:self.target_heatmap])
-            data_kps = [data_kps[i] for i in indexes]
             
         if self.mode == "both":
             return data_limbs, data_kps
