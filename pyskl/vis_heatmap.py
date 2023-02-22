@@ -39,7 +39,6 @@ def vis_heatmaps(heatmaps, channel=-1, ratio=(8,8)):
 
 def to_pseudo_heatmap(anno, flag='keypoint'):
     anno = np.array(get_pseudo_heatmap(anno, flag))
-    print(type(anno))
     return anno.transpose(1, 0, 2, 3)
 #     limb_mapvis = vis_heatmaps(limb_heatmap, ratio=ratio)
 
