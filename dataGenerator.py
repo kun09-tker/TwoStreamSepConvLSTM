@@ -2,7 +2,7 @@ from tensorflow.keras.utils import Sequence
 import numpy as np
 import cv2
 from mmcv import load
-from pyskl.vis_heatmap import to_pseudo_heatmap
+from .pyskl.vis_heatmap import to_pseudo_heatmap
 
 class DataGenerator(Sequence):
     """Data Generator inherited from keras.utils.Sequence
