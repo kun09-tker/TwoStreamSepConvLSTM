@@ -60,6 +60,7 @@ class DataGenerator(Sequence):
         batch_name = [self.X_name[k] for k in batch_indexs]
         # get batch data
         batch_x, batch_y = self.data_generation(batch_name)
+        print(batch_x.shape, batch_y.shape)
         return batch_x, batch_y
 
     def data_generation(self, batch_name):
