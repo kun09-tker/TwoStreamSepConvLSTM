@@ -1,24 +1,13 @@
-import os
-os.environ['PYTHONHASHSEED'] = '42'
-from numpy.random import seed
-from random import seed as rseed
-from tensorflow.random import set_seed
-seed(42)
-rseed(42)
-set_seed(42)
 import models
+import os
 from utils import *
-from dataGenerator import *
-from datasetProcess import *
-from tensorflow.keras.models import load_model
-from tensorflow.keras.utils import plot_model
+from dataGenerator import DataGenerator
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint,LearningRateScheduler
-import argparse
-
+from args import setArgs
 def train(args):
 
-    mode = args.mode # ["both","only_frames","only_differences"]
+    mode = args.mode #['both', 'only_limb', 'only_keypoints']
 
     if args.fusionType != 'C':
         if args.mode != 'both':
@@ -29,137 +18,52 @@ def train(args):
 
     if args.fusionType == 'C':
         model_function = models.getProposedModelC
-    elif args.fusionType == 'A':
-        model_function = models.getProposedModelA
-    elif args.fusionType == 'M':
-        model_function = models.getProposedModelM
-
-    dirinp = args.dirinp # ['rwf2000','movies','hockey']
-    # dataset_videos = {'hockey':'raw_videos/HockeyFights','movies':'raw_videos/movies'}
-    dataset = args.dataset
-#     if dataset == "rwf2000":
-    if dataset == "hockey":
-        initial_learning_rate = 1e-06 
-    elif dataset == "movies":
-        initial_learning_rate = 1e-05 
-    else:
-        initial_learning_rate = 4e-04
-    if dataset == "rwf2000":
-        dataset_frame_size = 320
-    else:
-        dataset_frame_size = 224    
-
-    # initial_learning_rate = args.initialLearningRate
-
+    # elif args.fusionType == 'A':
+    #     model_function = models.getProposedModelA
+    # elif args.fusionType == 'M':
+    #     model_function = models.getProposedModelM
+    
+    initial_learning_rate = args.LearningRate
+    resume_learning_rate = args.resumeLearningRate
+    dirinp = args.dirinp
+    vid_len = args.vidLen
     batch_size = args.batchSize
-
-    vid_len = args.vidLen  # 32
-
-    # dataset_frame_size = args.datasetFrameSize # 320
-    frame_diff_interval = 1
-    input_frame_size = 224
-
-    lstm_type = args.lstmType # attensepconv
-
-    # crop_dark = {
-    #     'hockey' : (16,45),
-    #     'movies' : (18,48),
-    #     'rwf2000': (0,0)
-    # }
-
-    #---------------------------------------------------
-
+    input_heatmap_size = args.HeatMapSize
     epochs = args.numEpochs
-
-    preprocess_data = args.preprocessData
-
     create_new_model = ( not args.resume )
-
+    dataset = args.DatasetName
     save_path = args.savePath
-
     resume_path = args.resumePath
-
-    itv = args.interval
-
-    background_suppress = args.noBackgroundSuppression
 
     if resume_path == "NOT_SET":
         currentModelPath =  os.path.join(save_path , str(dataset) + '_currentModel')
     else:
         currentModelPath = resume_path
-
-    bestValPath =  os.path.join(save_path, str(dataset) + '_best_val_acc_Model')  
-
-    # rwfPretrainedPath = args.rwfPretrainedPath
-    # if rwfPretrainedPath == "NOT_SET":
-        
-    #     if lstm_type == "sepconv":
-    #         ###########################
-    #         # rwfPretrainedPath contains path to the model which is already trained on rwf2000 dataset. It is used to initialize training on hockey or movies dataset
-    #         # get this model from the trained_models google drive folder that I provided in readme 
-    #         ###########################
-    #         rwfPretrainedPath = "./trained_models/rwf2000_model/sepconvlstm-M/model/rwf2000_model"   # if you are using M model
-    #     else:
-    #         pass
-        
-
-    resume_learning_rate = args.resumeLearningRate
+    
+    bestValPath =  os.path.join(save_path, str(dataset) + '_best_val_acc_Model')
 
     cnn_trainable = True  
-
-    one_hot = False
-
     loss = 'binary_crossentropy'
 
-    #----------------------------------------------------
-
-    if preprocess_data:
-
-        # if dataset == 'rwf2000':
-        if not os.path.exists(os.path.join(dataset, 'processed')):
-            os.makedirs(os.path.join(dataset, 'processed'))
-        convert_dataset_to_npy(src= dirinp, dest='{}/processed'.format(
-            dataset), crop_x_y=None, target_frames=vid_len, frame_size= dataset_frame_size, interval=itv)
-        # else:
-        #     if os.path.exists('{}'.format(dataset)):
-        #         shutil.rmtree('{}'.format(dataset))
-        #     split = train_test_split(dataset_name=dataset,source=dataset_videos[dataset])
-        #     os.makedirs(dataset)
-        #     os.makedirs(os.path.join(dataset,'videos'))
-        #     move_train_test(dest='{}/videos'.format(dataset),data=split)
-        #     os.makedirs(os.path.join(dataset,'processed'))
-        #     convert_dataset_to_npy(src='{}/videos'.format(dataset),dest='{}/processed'.format(dataset), crop_x_y=crop_dark[dataset], target_frames=vid_len, frame_size= dataset_frame_size )
-
-    train_generator = DataGenerator(directory = '{}/processed/train'.format(dataset),
+    train_generator = DataGenerator(directory_pkl = f'{dirinp}/train.pkl',
                                     batch_size = batch_size,
-                                    data_augmentation = True,
                                     shuffle = True,
-                                    one_hot = one_hot,
-                                    sample = False,
-                                    resize = input_frame_size,
-                                    background_suppress = background_suppress,
-                                    target_frames = vid_len,
-                                    dataset = dataset,
+                                    resize = input_heatmap_size,
+                                    target_heatmap = vid_len,
                                     mode = mode)
+    
+    val_generator = DataGenerator(directory_pkl = f'{dirinp}/val.pkl',
+                                batch_size = batch_size,
+                                shuffle = False,
+                                resize = input_heatmap_size,
+                                target_heatmap = vid_len,
+                                mode = mode)
 
-    test_generator = DataGenerator(directory = '{}/processed/val'.format(dataset),
-                                    batch_size = batch_size,
-                                    data_augmentation = False,
-                                    shuffle = False,
-                                    one_hot = one_hot,
-                                    sample = False,
-                                    resize = input_frame_size,
-                                    background_suppress = background_suppress,
-                                    target_frames = vid_len,
-                                    dataset = dataset,
-                                    mode = mode)
-
-    #--------------------------------------------------
-
+    
     print('> cnn_trainable : ',cnn_trainable)
     if create_new_model:
         print('> creating new model...')
-        model = model_function(size=input_frame_size, seq_len=vid_len,cnn_trainable=cnn_trainable, frame_diff_interval = frame_diff_interval, mode=mode, lstm_type=lstm_type)
+        model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode)
         # if dataset == "hockey" or dataset == "movies":
         #     print('> loading weights pretrained on rwf dataset from', rwfPretrainedPath)
         #     model.load_weights(rwfPretrainedPath)
@@ -169,7 +73,7 @@ def train(args):
     else:
         print('> getting the model from...', currentModelPath)  
         # if dataset == 'rwf2000':
-        model =  model_function(size=input_frame_size, seq_len=vid_len,cnn_trainable=cnn_trainable, frame_diff_interval = frame_diff_interval, mode=mode, lstm_type=lstm_type)
+        model =  model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode)
         optimizer = Adam(lr=resume_learning_rate, amsgrad=True)
         model.compile(optimizer=optimizer, loss=loss, metrics=['acc'])
         model.load_weights(f'{currentModelPath}')
@@ -212,52 +116,31 @@ def train(args):
         steps_per_epoch=len(train_generator),
         x=train_generator,
         epochs=epochs,
-        validation_data=test_generator,
-        validation_steps=len(test_generator),
+        validation_data=val_generator,
+        validation_steps=len(val_generator),
         verbose=1,
         workers=8,
         max_queue_size=8,
         use_multiprocessing=False,
         callbacks= callback_list
     )
+
+    version = args.version
     
-    model.save('save');
-    #---------------------------------------------------
+    model.save(f'{dataset}_save_version_{version}')
 
-def setArgs():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--numEpochs', type=int, default=50, help='Number of epochs')
-    parser.add_argument('--vidLen', type=int, default=32, help='Number of frames in a clip')
-    parser.add_argument('--batchSize', type=int, default=4, help='Training batch size')
-    parser.add_argument('--resume', help='whether training should resume from the previous checkpoint',action='store_true')
-    parser.add_argument('--noBackgroundSuppression', help='whether to use background suppression on frames',action='store_false')
-    parser.add_argument('--preprocessData', help='whether need to preprocess data ( make npy file from video clips )',action='store_false')
-    parser.add_argument('--mode', type=str, default='both', help='model type - both, only_frames, only_differences', choices=['both', 'only_frames', 'only_differences']) 
-    parser.add_argument('--dirinp', type=str)
-    parser.add_argument('--lstmType', type=str, default='sepconv', help='lstm - conv, sepconv, asepconv, 3dconvblock(use 3dconvblock instead of lstm)', choices=['sepconv','asepconv', 'conv', '3dconvblock'])
-    parser.add_argument('--fusionType', type=str, default='M', help='fusion type - A for add, M for multiply, C for concat', choices=['C','A','M']) 
-    parser.add_argument('--savePath', type=str, default='/gdrive/My Drive/THESIS/Data', help='folder path to save the models')
-    # parser.add_argument('--rwfPretrainedPath', type=str, default='NOT_SET', help='path to the weights pretrained on rwf dataset')
-    parser.add_argument('--resumePath', type=str, default='NOT_SET', help='path to the weights for resuming from previous checkpoint')
-    parser.add_argument('--resumeLearningRate', type=float, default=5e-05, help='learning rate to resume training from')
-    parser.add_argument('--dataset', type=str, default='rwf2000', help='dataset - rwf2000, hockey, movies')
-    parser.add_argument('--interval', type=int, default=1, help='interval between frames to be used for frame difference')
-
-    # args = parser.parse_args()
-    # train(args)
-    return parser
 
 def trainTwoStreamSeparateConvLSTM(dirinp
                                 , save_path
-                                , dataset = 'rwf2000'
-                                ,resume_path = 'NOT_SET'
-                                ,interval = 5
-                                ,resume = False
-                                ,num_epochs = 50
+                                , DatasetName = 'rwf2000'
+                                , resume_path = 'NOT_SET'
+                                , resume = False
+                                , num_epochs = 50
                                 , vid_len = 32
                                 , batch_size = 4
-                                , lstm_type = 'sepconv'
-                                , fusion_type = 'M'):
+                                , HeatMapSize = 224
+                                , version = 0
+                                ):
     if resume:
         args = setArgs().parse_args([
             '--numEpochs', str(num_epochs),
@@ -265,12 +148,11 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--batchSize', str(batch_size),
             '--resume',
             '--dirinp', dirinp,
-            '--lstmType', lstm_type,
-            '--fusionType', fusion_type,
             '--savePath', save_path,
             '--resumePath', resume_path,
-            '--dataset', dataset,
-            '--interval', str(interval)
+            '--DatasetName', DatasetName,
+            '--HeatMapSize', str(HeatMapSize),
+            '--version', str(version)
         ])
     else:
         args = setArgs().parse_args([
@@ -278,10 +160,9 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--vidLen', str(vid_len),
             '--batchSize', str(batch_size),
             '--dirinp', dirinp,
-            '--lstmType', lstm_type,
-            '--fusionType', fusion_type,
             '--savePath', save_path,
-            '--dataset', dataset,
-            '--interval', str(interval)
+            '--DatasetName', DatasetName,
+            '--HeatMapSize', str(HeatMapSize),
+            '--version', str(version)
         ])
     train(args)

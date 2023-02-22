@@ -1,8 +1,7 @@
-import matplotlib.pyplot as plt
-import pandas as pd
-import pickle
 from tensorflow.keras.callbacks import Callback as CB
+import matplotlib.pyplot as plt
 import os
+import pandas as pd
 
 class SaveTrainingCurves(CB):
 
@@ -78,58 +77,4 @@ def lr_scheduler(epoch, lr):
         print('> setting lr = ',lr * decay_rate)
         return lr * decay_rate
     return lr
-
-def save_as_csv(data, save_path, filename):
-    print('saving',filename,'in csv format...')
-    DrivePath = save_path + filename
-    pd.DataFrame(data).to_csv(DrivePath) #gdrive
-    pd.DataFrame(data).to_csv(filename)  #local 
-
-
-def save_plot_history(history, save_path, pickle_only=True):
-    # pickle
-    print('saving history in pickle format...')
-    historyFile = save_path + 'history.pickle'
-    try:
-        file_ = open(historyFile, 'wb')
-        pickle.dump(history, file_)
-        print('saved', historyFile)
-    except Exception as e:
-        print(e)
-    
-    if pickle_only:
-        return    
-
-    # csv
-    print('saving history in csv format...')
-    historyInDrivePath = save_path + 'history.csv'
-    pd.DataFrame(history).to_csv(historyInDrivePath) #gdrive
-    pd.DataFrame(history).to_csv('history.csv')  #local
-    print('plotting and saving train test graphs...')
-    
-    # accuracy graph
-    plt.figure(figsize=(10, 6))
-    plt.plot(history['acc'])
-    plt.plot(history['val_acc'])
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.grid(True)
-    plt.savefig('accuracy.png',bbox_inches='tight') #local
-    plt.savefig( save_path + 'accuracy.png',bbox_inches='tight') #gdrive
-    plt.close()
-
-    # loss graph
-    plt.figure(figsize=(10, 6))
-    plt.plot(history['loss'])
-    plt.plot(history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.grid(True)
-    plt.savefig('loss.png',bbox_inches='tight')  #local
-    plt.savefig( save_path  + 'loss.png',bbox_inches='tight')  #gdrive
-    plt.close()
 
