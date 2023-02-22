@@ -1,7 +1,7 @@
 from .models import getProposedModelC
 import os
 from .utils import *
-from dataGenerator import DataGenerator
+from .dataGenerator import DataGenerator
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint,LearningRateScheduler
 from .args import setArgs
