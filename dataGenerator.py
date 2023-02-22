@@ -60,7 +60,7 @@ class DataGenerator(Sequence):
         batch_name = [self.X_name[k] for k in batch_indexs]
         # get batch data
         batch_x, batch_y = self.data_generation(batch_name)
-        print(batch_x.shape, batch_y.shape)
+        print(batch_x[0].shape, batch_x[1].shape, batch_y.shape)
         return batch_x, batch_y
 
     def data_generation(self, batch_name):
@@ -88,11 +88,11 @@ class DataGenerator(Sequence):
         batch_y = [self.Y_dict[x] for x in batch_name]
         batch_y = np.array(batch_y)
         if self.mode == "both":
-            return np.array([batch_limbs, batch_keypoints]), batch_y
+            return [batch_limbs, batch_keypoints], batch_y
         if self.mode == "only_limbs":
-            return np.array([batch_limbs]), batch_y            
+            return [batch_limbs], batch_y            
         if self.mode == "only_keypoints":
-            return np.array([batch_keypoints]), batch_y
+            return [batch_keypoints], batch_y
     
     def load_data(self, name):
 
