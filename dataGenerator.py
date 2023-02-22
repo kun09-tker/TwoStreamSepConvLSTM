@@ -1,8 +1,6 @@
 from tensorflow.keras.utils import Sequence
 import numpy as np
 import cv2
-from mmcv import load
-from .pyskl.vis_heatmap import to_pseudo_heatmap
 
 class DataGenerator(Sequence):
     """Data Generator inherited from keras.utils.Sequence
@@ -14,32 +12,38 @@ class DataGenerator(Sequence):
         If you want to load file with other data format, please fix the method of "load_data" as you want
     """
 
-    def __init__(self, directory_pkl, batch_size=1, shuffle=False, target_heatmap=32, resize=224, mode="both"): 
+    def __init__(self, directory, batch_size=1, shuffle=False, target_heatmap=32, resize=224, mode="both"): 
         # Initialize the params
         self.batch_size = batch_size
-        self.directory_pkl = directory_pkl
+        self.directory = directory
         self.shuffle = shuffle
         self.target_heatmap = target_heatmap
         self.mode = mode  # ["only_limbs","only_keypoints", "both"]
         self.resize = resize
         # Load all the save_path of files, and create a dictionary that save the pair of "data:label"
-        self.X_video, self.Y_dict = self.search_data()
+        self.X_name, self.Y_dict = self.search_data()
         # Print basic statistics information
         self.shuffle_index()
         return None
     
     def search_data(self):
-        X_video = load(self.directory_pkl)
-        Y_dict = {video["frame_dir"]:video["label"] for video in X_video}
-        return X_video, Y_dict
+        with open(f"{self.directory}/label.txt", "r", encoding='utf-8') as file:
+            data = file.readlines()
+        X_name = []
+        Y_dict = {}
+        for d in data:
+            [name, label] = d.split(" ")
+            X_name.append(name)
+            Y_dict.update({name:int(label)})
+        return X_name, Y_dict
     
     def shuffle_index(self):
-        self.indexes = np.arange(len(self.X_video))
+        self.indexes = np.arange(len(self.X_name))
         np.random.shuffle(self.indexes)
 
     def __len__(self):
         # calculate the iterations of each epoch
-        steps_per_epoch = np.ceil(len(self.X_video) / float(self.batch_size))
+        steps_per_epoch = np.ceil(len(self.X_name) / float(self.batch_size))
         return int(steps_per_epoch)
 
     def __getitem__(self, index):
@@ -49,34 +53,34 @@ class DataGenerator(Sequence):
         batch_indexs = self.indexes[index *
                                     self.batch_size:(index+1)*self.batch_size]
         # using batch_indexs to get path of current batch
-        batch_video = [self.X_video[k] for k in batch_indexs]
+        batch_name = [self.X_name[k] for k in batch_indexs]
         # get batch data
-        batch_x, batch_y = self.data_generation(batch_video)
+        batch_x, batch_y = self.data_generation(batch_name)
         return batch_x, batch_y
 
-    def data_generation(self, batch_video):
+    def data_generation(self, batch_name):
         # loading X
         batch_limbs = []
         batch_keypoints = []
         if self.mode == "both":
-            for x in batch_video:
+            for x in batch_name:
                 lb_data, kps_data = self.load_data(x)
                 batch_limbs.append(lb_data)
                 batch_keypoints.append(kps_data)
             batch_limbs = np.array(batch_limbs)
             batch_keypoints = np.array(batch_keypoints)
         elif self.mode == "only_limbs":
-            for x in batch_video:
+            for x in batch_name:
                 data = self.load_data(x)
                 batch_limbs.append(data)
             batch_limbs = np.array(batch_limbs) 
         elif self.mode == "only_keypoints":
-            for x in batch_video:
+            for x in batch_name:
                 kps_data = self.load_data(x)
                 batch_keypoints.append(kps_data)
             batch_keypoints = np.array(batch_keypoints) 
         # loading Y
-        batch_y = [self.Y_dict[x["frame_dir"]] for x in batch_video]
+        batch_y = [self.Y_dict[x] for x in batch_name]
         batch_y = np.array(batch_y)
         if self.mode == "both":
             return [batch_limbs, batch_keypoints], batch_y
@@ -85,7 +89,7 @@ class DataGenerator(Sequence):
         if self.mode == "only_keypoints":
             return [batch_keypoints], batch_y
     
-    def load_data(self, video):
+    def load_data(self, name):
 
         if self.mode == "both":
             limbs = True
@@ -98,7 +102,7 @@ class DataGenerator(Sequence):
             keypoints = True
 
         if limbs:
-            heatmaps = to_pseudo_heatmap(video, flag="limb")
+            heatmaps = np.load(f"{self.directory}/limds/{name}.npy")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
             ratio = self.resize / h
@@ -115,7 +119,7 @@ class DataGenerator(Sequence):
             data_limbs = [data_limbs[i] for i in indexes]
 
         if keypoints:
-            heatmaps = to_pseudo_heatmap(video, flag="keypoint")
+            heatmaps = np.load(f"{self.directory}/keypoints/{name}.npy")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
             ratio = self.resize / h
