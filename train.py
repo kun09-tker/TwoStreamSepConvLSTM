@@ -1,9 +1,5 @@
 from .models import getProposedModelC
-from .pyskl.vis_heatmap import to_pseudo_heatmap
-from mmcv import load
 import os
-from tqdm import tqdm
-import numpy as np
 from .utils import *
 from .dataGenerator import DataGenerator
 from tensorflow.keras.optimizers import Adam
@@ -49,33 +45,14 @@ def train(args):
     cnn_trainable = True  
     loss = 'binary_crossentropy'
 
-    for t in ["train", "val"]:
-        print(f"Create process for {t}.....")
-        anno = load(f'{dirinp}/{t}.pkl')
-        label_txt = ""
-        print(os.path.exists(f"process_{t}"))
-        if not os.path.exists(f"process_{t}"):
-            os.mkdir(f"process_{t}")
-            os.mkdir(f"process_{t}/limbs")
-            os.mkdir(f"process_{t}/keypoints")
-        for video in tqdm(anno):
-            heatmaps_lb = to_pseudo_heatmap(video, flag="limb")
-            heatmaps_kp = to_pseudo_heatmap(video, flag="keypoint")
-            label_txt += f'{video["frame_dir"]} {video["label"]}\n'
-            np.save(os.path.join(f"process_{t}/limbs", video["frame_dir"]), heatmaps_lb)
-            np.save(os.path.join(f"process_{t}/keypoints", video["frame_dir"]), heatmaps_kp)
-        with open(f'process_{t}/label.txt', 'w') as file:
-            print("Writing label.....")
-            file.write(label_txt)
-
-    train_generator = DataGenerator(directory = 'process_train',
+    train_generator = DataGenerator(directory = f'{dirinp}/train.pkl',
                                     batch_size = batch_size,
                                     shuffle = True,
                                     resize = input_heatmap_size,
                                     target_heatmap = vid_len,
                                     mode = mode)
     
-    val_generator = DataGenerator(directory = 'process_val',
+    val_generator = DataGenerator(directory = f'{dirinp}/val.pkl',
                                 batch_size = batch_size,
                                 shuffle = False,
                                 resize = input_heatmap_size,

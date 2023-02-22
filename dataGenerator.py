@@ -1,4 +1,6 @@
 from tensorflow.keras.utils import Sequence
+from .pyskl.vis_heatmap import to_pseudo_heatmap
+from mmcv import load
 import numpy as np
 import cv2
 
@@ -21,29 +23,18 @@ class DataGenerator(Sequence):
         self.mode = mode  # ["only_limbs","only_keypoints", "both"]
         self.resize = resize
         # Load all the save_path of files, and create a dictionary that save the pair of "data:label"
-        self.X_name, self.Y_dict = self.search_data()
+        self.X_video = load(self.directory)
         # Print basic statistics information
         self.shuffle_index()
         return None
-    
-    def search_data(self):
-        with open(f"{self.directory}/label.txt", "r", encoding='utf-8') as file:
-            data = file.readlines()
-        X_name = []
-        Y_dict = {}
-        for d in data:
-            [name, label] = d.split(" ")
-            X_name.append(name)
-            Y_dict.update({name:int(label)})
-        return X_name, Y_dict
-    
+
     def shuffle_index(self):
-        self.indexes = np.arange(len(self.X_name))
+        self.indexes = np.arange(len(self.X_video))
         np.random.shuffle(self.indexes)
 
     def __len__(self):
         # calculate the iterations of each epoch
-        steps_per_epoch = np.ceil(len(self.X_name) / float(self.batch_size))
+        steps_per_epoch = np.ceil(len(self.X_video) / float(self.batch_size))
         return int(steps_per_epoch)
 
     def __getitem__(self, index):
@@ -53,34 +44,34 @@ class DataGenerator(Sequence):
         batch_indexs = self.indexes[index *
                                     self.batch_size:(index+1)*self.batch_size]
         # using batch_indexs to get path of current batch
-        batch_name = [self.X_name[k] for k in batch_indexs]
+        batch_video = [self.X_video[k] for k in batch_indexs]
         # get batch data
-        batch_x, batch_y = self.data_generation(batch_name)
+        batch_x, batch_y = self.data_generation(batch_video)
         return batch_x, batch_y
 
-    def data_generation(self, batch_name):
+    def data_generation(self, batch_video):
         # loading X
         batch_limbs = []
         batch_keypoints = []
         if self.mode == "both":
-            for x in batch_name:
+            for x in batch_video:
                 lb_data, kps_data = self.load_data(x)
                 batch_limbs.append(lb_data)
                 batch_keypoints.append(kps_data)
             batch_limbs = np.array(batch_limbs)
             batch_keypoints = np.array(batch_keypoints)
         elif self.mode == "only_limbs":
-            for x in batch_name:
+            for x in batch_video:
                 data = self.load_data(x)
                 batch_limbs.append(data)
             batch_limbs = np.array(batch_limbs) 
         elif self.mode == "only_keypoints":
-            for x in batch_name:
+            for x in batch_video:
                 kps_data = self.load_data(x)
                 batch_keypoints.append(kps_data)
             batch_keypoints = np.array(batch_keypoints) 
         # loading Y
-        batch_y = [self.Y_dict[x] for x in batch_name]
+        batch_y = [x["label"] for x in batch_video]
         batch_y = np.array(batch_y)
         if self.mode == "both":
             return [batch_limbs, batch_keypoints], batch_y
@@ -89,7 +80,7 @@ class DataGenerator(Sequence):
         if self.mode == "only_keypoints":
             return [batch_keypoints], batch_y
     
-    def load_data(self, name):
+    def load_data(self, video):
 
         if self.mode == "both":
             limbs = True
@@ -102,7 +93,7 @@ class DataGenerator(Sequence):
             keypoints = True
 
         if limbs:
-            heatmaps = np.load(f"{self.directory}/limds/{name}.npy")
+            heatmaps = to_pseudo_heatmap(video, flag="limb")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
             ratio = self.resize / h
@@ -119,7 +110,7 @@ class DataGenerator(Sequence):
             data_limbs = [data_limbs[i] for i in indexes]
 
         if keypoints:
-            heatmaps = np.load(f"{self.directory}/keypoints/{name}.npy")
+            heatmaps = to_pseudo_heatmap(video, flag="keypoint")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
             ratio = self.resize / h
