@@ -51,6 +51,10 @@ def train(args):
     for t in ["train", "val"]:
         anno = load(f'{dirinp}/{t}.pkl')
         label_txt = ""
+        if os.path.exists(f"process_{t}"):
+            os.mkdir(f"process_{t}")
+            os.mkdir(f"process_{t}/limbs")
+            os.mkdir(f"process_{t}/keypoints")
         for video in anno:
             heatmaps_lb = to_pseudo_heatmap(video, flag="limb")
             heatmaps_kp = to_pseudo_heatmap(video, flag="keypoint")
