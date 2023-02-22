@@ -53,6 +53,7 @@ def train(args):
         print(f"Create process for {t}.....")
         anno = load(f'{dirinp}/{t}.pkl')
         label_txt = ""
+        print(os.path.exists(f"process_{t}"))
         if not os.path.exists(f"process_{t}"):
             os.mkdir(f"process_{t}")
             os.mkdir(f"process_{t}/limbs")
