@@ -132,6 +132,7 @@ def train(args):
 
 def trainTwoStreamSeparateConvLSTM(dirinp
                                 , save_path
+                                , mode = 'both'
                                 , DatasetName = 'rwf2000'
                                 , resume_path = 'NOT_SET'
                                 , resume = False
@@ -146,6 +147,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--numEpochs', str(num_epochs),
             '--vidLen', str(vid_len),
             '--batchSize', str(batch_size),
+            '--mode', mode,
             '--resume',
             '--dirinp', dirinp,
             '--savePath', save_path,
@@ -159,6 +161,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--numEpochs', str(num_epochs),
             '--vidLen', str(vid_len),
             '--batchSize', str(batch_size),
+            '--mode', mode,
             '--dirinp', dirinp,
             '--savePath', save_path,
             '--DatasetName', DatasetName,

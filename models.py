@@ -90,7 +90,7 @@ def getProposedModelC(
         x = Concatenate(axis=-1)([x1, x2])
     elif mode == "only_limbs":
         x = x1
-    elif mode == "only_differences":
+    elif mode == "only_keypoints":
         x = x2
 
     x = Dropout(dense_dropout, seed = seed)(x) 
@@ -103,7 +103,7 @@ def getProposedModelC(
         model = Model(inputs=[limbs_input, keypoints_input], outputs=predictions)
     elif mode == "only_limbs":
         model = Model(inputs=limbs_input, outputs=predictions)
-    elif mode == "only_differences":
+    elif mode == "only_keypoints":
         model = Model(inputs=keypoints_input, outputs=predictions)
 
     return model
