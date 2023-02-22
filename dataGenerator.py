@@ -122,7 +122,7 @@ class DataGenerator(Sequence):
             indexes = np.arange(len(data_limbs))
             np.random.shuffle(indexes)
             indexes = np.sort(indexes[:self.target_heatmap])
-            data_limbs = [data_limbs[i] for i in indexes]
+            data_limbs = np.array([data_limbs[i] for i in indexes])
 
         if keypoints:
             video = load(f"spread_pkl/{name}.pkl")
@@ -140,7 +140,7 @@ class DataGenerator(Sequence):
             indexes = np.arange(len(data_kps))
             np.random.shuffle(indexes)
             indexes = np.sort(indexes[:self.target_heatmap])
-            data_kps = [data_kps[i] for i in indexes]
+            data_kps = np.array([data_kps[i] for i in indexes])
             
         if self.mode == "both":
             return data_limbs, data_kps
