@@ -2,7 +2,7 @@ from .models import getProposedModelC
 from .pyskl.vis_heatmap import to_pseudo_heatmap
 from mmcv import load
 import os
-import tqdm
+from tqdm import tqdm
 import numpy as np
 from .utils import *
 from .dataGenerator import DataGenerator
