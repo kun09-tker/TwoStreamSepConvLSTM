@@ -107,7 +107,8 @@ class DataGenerator(Sequence):
 
         if limbs:
             video = load(f"spread_pkl/{name}.pkl")
-                        # uniform_sampling
+            print(video)
+            # uniform_sampling
             indexes = np.arange(len(video))
             np.random.shuffle(indexes)
             indexes = np.sort(indexes[:self.target_heatmap])
