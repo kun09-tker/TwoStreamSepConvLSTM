@@ -1,10 +1,10 @@
-import models
+from .models import getProposedModelC
 import os
-from utils import *
+from .utils import *
 from dataGenerator import DataGenerator
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint,LearningRateScheduler
-from args import setArgs
+from .args import setArgs
 def train(args):
 
     mode = args.mode #['both', 'only_limb', 'only_keypoints']
@@ -17,7 +17,7 @@ def train(args):
             raise Exception('3dconvblock instead of lstm is only available for fusionType C ! aborting execution...')
 
     if args.fusionType == 'C':
-        model_function = models.getProposedModelC
+        model_function = getProposedModelC
     # elif args.fusionType == 'A':
     #     model_function = models.getProposedModelA
     # elif args.fusionType == 'M':

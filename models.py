@@ -5,7 +5,7 @@ from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.layers import LeakyReLU, Conv3D, Multiply, MaxPooling3D, MaxPooling2D, Concatenate, Add
 from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
-from sep_conv_rnn import SepConvLSTM2D
+from .sep_conv_rnn import SepConvLSTM2D
 
 def getProposedModelC(
         size=22
