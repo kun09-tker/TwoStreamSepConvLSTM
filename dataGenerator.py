@@ -88,11 +88,11 @@ class DataGenerator(Sequence):
         batch_y = [self.Y_dict[x] for x in batch_name]
         batch_y = np.array(batch_y)
         if self.mode == "both":
-            return [batch_limbs, batch_keypoints], batch_y
+            return np.array([batch_limbs, batch_keypoints]), batch_y
         if self.mode == "only_limbs":
-            return [batch_limbs], batch_y            
+            return np.array([batch_limbs]), batch_y            
         if self.mode == "only_keypoints":
-            return [batch_keypoints], batch_y
+            return np.array([batch_keypoints]), batch_y
     
     def load_data(self, name):
 
