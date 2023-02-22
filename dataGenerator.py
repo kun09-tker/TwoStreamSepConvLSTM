@@ -109,10 +109,12 @@ class DataGenerator(Sequence):
             video = load(f"spread_pkl/{name}.pkl")
             print(video)
             # uniform_sampling
-            indexes = np.arange(len(video))
+            indexes = np.arange(len(video["keypoint_score"]))
             np.random.shuffle(indexes)
             indexes = np.sort(indexes[:self.target_heatmap])
-            video = [video[i] for i in indexes]
+            video["keypoint_score"] = [video["keypoint_score"][i] for i in indexes]
+            video["keypoint"] = [video["keypoint"][i] for i in indexes]
+            video["total_frames"] = self.target_heatmap
 
             heatmaps = to_pseudo_heatmap(video, flag="limb")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
@@ -126,11 +128,14 @@ class DataGenerator(Sequence):
 
         if keypoints:
             video = load(f"spread_pkl/{name}.pkl")
+            print(video)
             # uniform_sampling
-            indexes = np.arange(len(video))
+            indexes = np.arange(len(video["keypoint_score"]))
             np.random.shuffle(indexes)
             indexes = np.sort(indexes[:self.target_heatmap])
-            video = [video[i] for i in indexes]
+            video["keypoint_score"] = [video["keypoint_score"][i] for i in indexes]
+            video["keypoint"] = [video["keypoint"][i] for i in indexes]
+            video["total_frames"] = self.target_heatmap
         
             heatmaps = to_pseudo_heatmap(video, flag="keypoint")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
