@@ -20,3 +20,6 @@ pip install moviepy
 
 echo "Install imageio"
 pip3 install imageio==2.4.1
+
+echo "Install tqdm"
+pip install tqdm

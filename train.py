@@ -2,6 +2,7 @@ from .models import getProposedModelC
 from .pyskl.vis_heatmap import to_pseudo_heatmap
 from mmcv import load
 import os
+import tqdm
 import numpy as np
 from .utils import *
 from .dataGenerator import DataGenerator
@@ -49,19 +50,21 @@ def train(args):
     loss = 'binary_crossentropy'
 
     for t in ["train", "val"]:
+        print(f"Create process for {t}.....")
         anno = load(f'{dirinp}/{t}.pkl')
         label_txt = ""
         if not os.path.exists(f"process_{t}"):
             os.mkdir(f"process_{t}")
             os.mkdir(f"process_{t}/limbs")
             os.mkdir(f"process_{t}/keypoints")
-        for video in anno:
+        for video in tqdm(anno):
             heatmaps_lb = to_pseudo_heatmap(video, flag="limb")
             heatmaps_kp = to_pseudo_heatmap(video, flag="keypoint")
             label_txt += f'{video["frame_dir"]} {video["label"]}\n'
             np.save(os.path.join(f"process_{t}/limbs", video["frame_dir"]), heatmaps_lb)
             np.save(os.path.join(f"process_{t}/keypoints", video["frame_dir"]), heatmaps_kp)
         with open(f'process_{t}/label.txt', 'w') as file:
+            print("Writing label.....")
             file.write(label_txt)
 
     train_generator = DataGenerator(directory = 'process_train',
