@@ -107,15 +107,6 @@ class DataGenerator(Sequence):
 
         if limbs:
             video = load(f"spread_pkl/{name}.pkl")
-            print(video)
-            # uniform_sampling
-            indexes = np.arange(len(video["keypoint_score"]))
-            np.random.shuffle(indexes)
-            indexes = np.sort(indexes[:self.target_heatmap])
-            video["keypoint_score"] = [video["keypoint_score"][i] for i in indexes]
-            video["keypoint"] = [video["keypoint"][i] for i in indexes]
-            video["total_frames"] = self.target_heatmap
-
             heatmaps = to_pseudo_heatmap(video, flag="limb")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
@@ -126,17 +117,14 @@ class DataGenerator(Sequence):
                 data_limbs.append([cv2.resize(x, (neww, newh)) for x in hm])
             data_limbs = np.array(data_limbs).transpose(0, 2, 3, 1)
 
-        if keypoints:
-            video = load(f"spread_pkl/{name}.pkl")
-            print(video)
             # uniform_sampling
-            indexes = np.arange(len(video["keypoint_score"]))
+            indexes = np.arange(len(data_limbs))
             np.random.shuffle(indexes)
             indexes = np.sort(indexes[:self.target_heatmap])
-            video["keypoint_score"] = [video["keypoint_score"][i] for i in indexes]
-            video["keypoint"] = [video["keypoint"][i] for i in indexes]
-            video["total_frames"] = self.target_heatmap
-        
+            data_limbs = [data_limbs[i] for i in indexes]
+
+        if keypoints:
+            video = load(f"spread_pkl/{name}.pkl")
             heatmaps = to_pseudo_heatmap(video, flag="keypoint")
             heatmaps = heatmaps.transpose(1, 0, 2, 3)
             _ ,_ , h, w = heatmaps.shape
@@ -146,6 +134,12 @@ class DataGenerator(Sequence):
             for hm in heatmaps:
                 data_kps.append([cv2.resize(x, (neww, newh)) for x in hm])
             data_kps = np.array(data_kps).transpose(0, 2, 3, 1)
+
+            # uniform_sampling
+            indexes = np.arange(len(data_kps))
+            np.random.shuffle(indexes)
+            indexes = np.sort(indexes[:self.target_heatmap])
+            data_kps = [data_kps[i] for i in indexes]
             
         if self.mode == "both":
             return data_limbs, data_kps
