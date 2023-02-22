@@ -51,7 +51,7 @@ def train(args):
     for t in ["train", "val"]:
         anno = load(f'{dirinp}/{t}.pkl')
         label_txt = ""
-        if os.path.exists(f"process_{t}"):
+        if not os.path.exists(f"process_{t}"):
             os.mkdir(f"process_{t}")
             os.mkdir(f"process_{t}/limbs")
             os.mkdir(f"process_{t}/keypoints")
