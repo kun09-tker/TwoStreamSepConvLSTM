@@ -5,6 +5,7 @@ from tqdm import tqdm
 import numpy as np
 import cv2
 import os
+import random
 
 class DataGenerator(Sequence):
     """Data Generator inherited from keras.utils.Sequence
@@ -93,6 +94,12 @@ class DataGenerator(Sequence):
             return [batch_limbs], batch_y            
         if self.mode == "only_keypoints":
             return [batch_keypoints], batch_y
+        
+    def uniform_sampling(self, data):
+        indexes = np.arange(len(data))
+        part = int(len(data)/self.target_heatmap)
+        indexes_choice = [random.choice(indexes[i*part:(i+1)*part])  for i in range(self.target_heatmap)]
+        return np.array([data[idx] for idx in indexes_choice])
     
     def load_data(self, name):
 
@@ -119,10 +126,7 @@ class DataGenerator(Sequence):
             data_limbs = np.array(data_limbs).transpose(0, 2, 3, 1)
 
             # uniform_sampling
-            indexes = np.arange(len(data_limbs))
-            np.random.shuffle(indexes)
-            indexes = np.sort(indexes[:self.target_heatmap])
-            data_limbs = np.array([data_limbs[i] for i in indexes])
+            data_limbs = self.uniform_sampling(data_limbs)
 
         if keypoints:
             video = load(f"spread_pkl/{name}.pkl")
@@ -137,10 +141,7 @@ class DataGenerator(Sequence):
             data_kps = np.array(data_kps).transpose(0, 2, 3, 1)
 
             # uniform_sampling
-            indexes = np.arange(len(data_kps))
-            np.random.shuffle(indexes)
-            indexes = np.sort(indexes[:self.target_heatmap])
-            data_kps = np.array([data_kps[i] for i in indexes])
+            data_kps = self.uniform_sampling(data_kps)
             
         if self.mode == "both":
             return data_limbs, data_kps
