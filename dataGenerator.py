@@ -1,5 +1,5 @@
 from tensorflow.keras.utils import Sequence
-from .pyskl.vis_heatmap import to_pseudo_heatmap
+from .pyskl.vis_heatmap import to_heatmap
 from mmcv import load, dump
 from tqdm import tqdm
 import numpy as np
@@ -25,7 +25,8 @@ class DataGenerator(Sequence):
         self.target_heatmap = target_heatmap
         self.mode = mode  # ["only_limbs","only_keypoints", "both"]
         self.resize = resize
-
+        ratio = self.resize / 64
+        self.ratio = (ratio, ratio)
         self.X_name, self.Y_dict = self.spread_pkl()
         self.shuffle_index()
         return None
@@ -115,33 +116,15 @@ class DataGenerator(Sequence):
 
         if limbs:
             video = load(f"spread_pkl/{name}.pkl")
-            heatmaps = to_pseudo_heatmap(video, flag="limb")
-            heatmaps = heatmaps.transpose(1, 0, 2, 3)
-            _ ,_ , h, w = heatmaps.shape
-            ratio = self.resize / h
-            newh, neww = int(h * ratio), int(w * ratio)
-            data_limbs = []
-            for hm in heatmaps:
-                data_limbs.append([cv2.resize(x, (neww, newh)) for x in hm])
-            data_limbs = np.array(data_limbs).transpose(0, 2, 3, 1)
-
+            heatmaps = to_heatmap(video, flag="limb", ratio=self.ratio)
             # uniform_sampling
-            data_limbs = self.uniform_sampling(data_limbs)
+            data_limbs = self.uniform_sampling(heatmaps)
 
         if keypoints:
             video = load(f"spread_pkl/{name}.pkl")
-            heatmaps = to_pseudo_heatmap(video, flag="keypoint")
-            heatmaps = heatmaps.transpose(1, 0, 2, 3)
-            _ ,_ , h, w = heatmaps.shape
-            ratio = self.resize / h
-            newh, neww = int(h * ratio), int(w * ratio)
-            data_kps = []
-            for hm in heatmaps:
-                data_kps.append([cv2.resize(x, (neww, newh)) for x in hm])
-            data_kps = np.array(data_kps).transpose(0, 2, 3, 1)
-
+            heatmaps = to_heatmap(video, flag="keypoint", ratio=self.ratio)
             # uniform_sampling
-            data_kps = self.uniform_sampling(data_kps)
+            data_kps = self.uniform_sampling(heatmaps)
             
         if self.mode == "both":
             return data_limbs, data_kps

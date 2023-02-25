@@ -43,11 +43,11 @@ def to_pseudo_heatmap(anno, flag='keypoint'):
 #     limb_mapvis = vis_heatmaps(limb_heatmap, ratio=ratio)
 
 def to_heatmap(anno, flag='keypoint', ratio=(8,8)):
-    limb_heatmap = get_pseudo_heatmap(anno, flag)
-    limb_mapvis = vis_heatmaps(limb_heatmap, ratio=ratio)
+    heatmap = get_pseudo_heatmap(anno, flag)
+    mapvis = vis_heatmaps(heatmap, ratio=ratio)
     # limb_mapvis = [add_label(f, gym_categories[anno['label']]) for f in limb_mapvis]
     # if show_video:
     #     vid = mpy.ImageSequenceClip(limb_mapvis, fps=24)
     #     vid.ipython_display()
 
-    return limb_mapvis
+    return mapvis
