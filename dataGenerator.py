@@ -181,12 +181,12 @@ class DataGenerator(Sequence):
         
         if frames:
             data = np.array(data, dtype=np.float32)
-            assert (data.shape == (self.target_frames,self.resize, self.resize,3)), str(data.shape)
+            assert (data.shape == (self.target_heatmap,self.resize, self.resize,3)), str(data.shape)
 
         if differences:
             diff_data = self.frame_difference(data)
             diff_data = np.array(diff_data, dtype=np.float32)
-            assert (diff_data.shape == (self.target_frames - self.frame_diff_interval, self.resize, self.resize, 3)), str(data.shape)
+            assert (diff_data.shape == (self.target_heatmap - self.frame_diff_interval, self.resize, self.resize, 3)), str(data.shape)
 
         if self.mode == "both":
             return data, diff_data
