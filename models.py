@@ -46,7 +46,7 @@ def getProposedModelC(
     if limbs:
         limbs_input = Input(shape=(seq_len, size, size, 3),name='limbs_input')
         limbs_cnn = MobileNetV2( input_shape = (size, size, 3), alpha=0.35, weights=None, include_top = False)
-        limbs_cnn = Model( inputs=[limbs_cnn.layers[0].input],outputs=[limbs_cnn.layers[-30].output] ) # taking only upto block 13
+        limbs_cnn = Model( inputs=[limbs_cnn.layers[0].input],outputs=[limbs_cnn.layers[-10].output] ) # taking only upto block 13
 
         for layer in limbs_cnn.layers:
             layer.trainable = cnn_trainable
@@ -61,7 +61,7 @@ def getProposedModelC(
     if keypoints:
         keypoints_input = Input(shape=(seq_len, size, size, 3),name='keypoints_input')
         keypoints_cnn = MobileNetV2( input_shape=(size, size, 3), alpha=0.35, weights=None, include_top = False)
-        keypoints_cnn = Model( inputs = [keypoints_cnn.layers[0].input], outputs = [keypoints_cnn.layers[-30].output])
+        keypoints_cnn = Model( inputs = [keypoints_cnn.layers[0].input], outputs = [keypoints_cnn.layers[-10].output])
     
         for layer in keypoints_cnn.layers:
             layer.trainable = cnn_trainable
