@@ -110,7 +110,7 @@ class DataGenerator(Sequence):
             video = np.flip(m=video, axis=2)
         return video   
     
-    def random_rotation(self, video, rg, prob=0.5, row_axis=0, col_axis=1, channel_axis=2,
+    def random_rotation(self, video, rg, prob=0.5, channel_axis=2,
                         fill_mode='nearest', cval=0., interpolation_order=1):
         s = np.random.rand()
         if s > prob:
