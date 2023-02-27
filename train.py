@@ -42,7 +42,7 @@ def train(args):
     
     bestValPath =  os.path.join(save_path, str(dataset) + '_best_val_acc_Model')
 
-    cnn_trainable = True  
+    cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
 
     train_generator = DataGenerator(directory = f'{dirinp}/train.pkl',
@@ -141,6 +141,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 , batch_size = 4
                                 , HeatMapSize = 224
                                 , version = 0
+                                , cnn_trainable = 1
                                 ):
     if resume:
         args = setArgs().parse_args([
@@ -154,7 +155,8 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--resumePath', resume_path,
             '--DatasetName', DatasetName,
             '--HeatMapSize', str(HeatMapSize),
-            '--version', str(version)
+            '--version', str(version),
+            '--cnnTrainable', str(cnn_trainable)
         ])
     else:
         args = setArgs().parse_args([
@@ -166,6 +168,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--savePath', save_path,
             '--DatasetName', DatasetName,
             '--HeatMapSize', str(HeatMapSize),
-            '--version', str(version)
+            '--version', str(version),
+            '--cnnTrainable', str(cnn_trainable)
         ])
     train(args)

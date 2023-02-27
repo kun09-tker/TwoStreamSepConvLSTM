@@ -20,9 +20,10 @@ keypoint_pipeline = [
 ]
 
 def get_pseudo_heatmap(anno, flag='keypoint'):
+    anno_ = anno.copy()
     assert flag in ['keypoint', 'limb']
     pipeline = Compose(keypoint_pipeline if flag == 'keypoint' else limb_pipeline)
-    return pipeline(anno)['imgs']
+    return pipeline(anno_)['imgs']
 
 def vis_heatmaps(heatmaps, channel=-1, ratio=(8,8)):
     # if channel is -1, draw all keypoints / limbs on the same map
@@ -38,7 +39,7 @@ def vis_heatmaps(heatmaps, channel=-1, ratio=(8,8)):
     return heatmaps
 
 def to_pseudo_heatmap(anno, flag='keypoint'):
-    anno = np.array(get_pseudo_heatmap(anno, flag))
+    anno = get_pseudo_heatmap(anno, flag)
     return anno.transpose(1, 0, 2, 3)
 #     limb_mapvis = vis_heatmaps(limb_heatmap, ratio=ratio)
 

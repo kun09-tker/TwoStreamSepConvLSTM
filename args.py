@@ -16,6 +16,7 @@ def setArgs():
     parser.add_argument('--HeatMapSize', type=int, default=224, help='Size of 2D heatmap')
     parser.add_argument('--DatasetName', type=str)
     parser.add_argument('--version', type=int, default=0)
+    parser.add_argument('--cnnTrainable', type=int)
     # args = parser.parse_args()
     # train(args)
     return parser
