@@ -117,7 +117,7 @@ class DataGenerator(Sequence):
             return video
         theta = np.random.uniform(-rg, rg)
         for i in range(np.shape(video)[0]):
-            x = apply_affine_transform(video[i, :, :, :], theta=theta, channel_axis=channel_axis,
+            x = apply_affine_transform(video[i], theta=theta, channel_axis=channel_axis,
                                        fill_mode=fill_mode, cval=cval,
                                        order=interpolation_order)
             video[i] = x
