@@ -7,7 +7,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint,LearningRateScheduler
 from .args import setArgs
 def train(args):
 
-    mode = args.mode #['both', 'only_limb', 'only_keypoints']
+    mode = args.mode #['both', 'only_frames', 'only_differences']
 
     if args.fusionType != 'C':
         if args.mode != 'both':
@@ -34,6 +34,8 @@ def train(args):
     dataset = args.DatasetName
     save_path = args.savePath
     resume_path = args.resumePath
+    type_part = args.typePart
+    frame_diff_interval = 1
 
     if resume_path == "NOT_SET":
         currentModelPath =  os.path.join(save_path , str(dataset) + '_currentModel')
@@ -46,24 +48,28 @@ def train(args):
     loss = 'binary_crossentropy'
 
     train_generator = DataGenerator(directory = f'{dirinp}/train.pkl',
+                                    type_part=type_part,
                                     batch_size = batch_size,
                                     shuffle = True,
                                     resize = input_heatmap_size,
                                     target_heatmap = vid_len,
+                                    data_augmentation=True,
                                     mode = mode)
     
     val_generator = DataGenerator(directory = f'{dirinp}/val.pkl',
+                                type_part=type_part,
                                 batch_size = batch_size,
                                 shuffle = False,
                                 resize = input_heatmap_size,
                                 target_heatmap = vid_len,
+                                data_augmentation=False,
                                 mode = mode)
 
     
     print('> cnn_trainable : ',cnn_trainable)
     if create_new_model:
         print('> creating new model...')
-        model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode)
+        model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode, frame_diff_interval=frame_diff_interval)
         # if dataset == "hockey" or dataset == "movies":
         #     print('> loading weights pretrained on rwf dataset from', rwfPretrainedPath)
         #     model.load_weights(rwfPretrainedPath)
@@ -73,7 +79,7 @@ def train(args):
     else:
         print('> getting the model from...', currentModelPath)  
         # if dataset == 'rwf2000':
-        model =  model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode)
+        model =  model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode, frame_diff_interval=frame_diff_interval)
         optimizer = Adam(lr=resume_learning_rate, amsgrad=True)
         model.compile(optimizer=optimizer, loss=loss, metrics=['acc'])
         model.load_weights(f'{currentModelPath}')
@@ -142,6 +148,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 , HeatMapSize = 224
                                 , version = 0
                                 , cnn_trainable = 1
+                                , type_part = 'limb'
                                 ):
     if resume:
         args = setArgs().parse_args([
@@ -156,7 +163,8 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--DatasetName', DatasetName,
             '--HeatMapSize', str(HeatMapSize),
             '--version', str(version),
-            '--cnnTrainable', str(cnn_trainable)
+            '--cnnTrainable', str(cnn_trainable),
+            '--typePart', type_part
         ])
     else:
         args = setArgs().parse_args([
@@ -169,6 +177,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--DatasetName', DatasetName,
             '--HeatMapSize', str(HeatMapSize),
             '--version', str(version),
-            '--cnnTrainable', str(cnn_trainable)
+            '--cnnTrainable', str(cnn_trainable),
+            '--typePart', type_part
         ])
     train(args)

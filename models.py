@@ -8,8 +8,9 @@ from tensorflow.keras.regularizers import l2
 from .sep_conv_rnn import SepConvLSTM2D
 
 def getProposedModelC(
-        size=22
-        , seq_len=32 
+        size=224
+        , seq_len=32
+        , frame_diff_interval = 1
         # , cnn_weight = 'imagenet'
         ,cnn_trainable = True
         # , lstm_type='sepconv'
@@ -20,76 +21,69 @@ def getProposedModelC(
         , dense_dropout = 0.3
         , seed = 42
     ):
-    """parameters:
-    size = height/width of each k part,
-    seq_len = number of group of part heatmaps in each sequence,
-    cnn_weight= None or 'imagenet'
-    mode = "only_limb" or "only_keypoints" or "both"
-       returns:
-    model
-    """
-    # print('cnn_trainable:',cnn_trainable)
-    # print('cnn dropout : ', cnn_dropout)
-    # print('dense dropout : ', dense_dropout)
-    # print('lstm dropout :', lstm_dropout)
 
     if mode == "both":
-        limbs = True
-        keypoints = True
-    elif mode == "only_limbs":
-        limbs = True
-        keypoints = False
-    elif mode == "only_keypoints":
-        limbs = False
-        keypoints = True
+        frames = True
+        differences = True
+    elif mode == "only_frames":
+        frames = True
+        differences = False
+    elif mode == "only_differences":
+        frames = False
+        differences = True
 
-    if limbs:
-        limbs_input = Input(shape=(seq_len, size, size, 3),name='limbs_input')
-        limbs_cnn = MobileNetV2( input_shape = (size, size, 3), alpha=0.35, weights=None, include_top = False)
-        limbs_cnn = Model( inputs=[limbs_cnn.layers[0].input],outputs=[limbs_cnn.layers[-1].output] ) # taking only upto block 13
+    if frames:
 
-        for layer in limbs_cnn.layers:
+        frames_input = Input(shape=(seq_len, size, size, 3),name='frames_input')
+        frames_cnn = MobileNetV2( input_shape = (size,size,3), alpha=0.35, weights='imagenet', include_top = False)
+        frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-30].output] ) # taking only upto block 13
+        
+        for layer in frames_cnn.layers:
             layer.trainable = cnn_trainable
 
-        limbs_cnn = TimeDistributed( limbs_cnn,name='limbs_CNN' )( limbs_input )
-        limbs_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_1_' )( limbs_cnn)
-        limbs_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(limbs_cnn)
+        frames_cnn = TimeDistributed( frames_cnn,name='frames_CNN' )( frames_input )
+        frames_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_1_' )( frames_cnn)
+        frames_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(frames_cnn)
 
-        limbs_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(limbs_cnn)
-        limbs_lstm = BatchNormalization( axis = -1 )(limbs_lstm)
+        frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
 
-    if keypoints:
-        keypoints_input = Input(shape=(seq_len, size, size, 3),name='keypoints_input')
-        keypoints_cnn = MobileNetV2( input_shape=(size, size, 3), alpha=0.35, weights=None, include_top = False)
-        keypoints_cnn = Model( inputs = [keypoints_cnn.layers[0].input], outputs = [keypoints_cnn.layers[-1].output])
+
+        frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
+        
+    if differences:
+
+        frames_diff_input = Input(shape=(seq_len - frame_diff_interval, size, size, 3),name='frames_diff_input')
+        frames_diff_cnn = MobileNetV2( input_shape=(size,size,3), alpha=0.35, weights='imagenet', include_top = False)
+        frames_diff_cnn = Model( inputs = [frames_diff_cnn.layers[0].input], outputs = [frames_diff_cnn.layers[-30].output] ) # taking only upto block 13
     
-        for layer in keypoints_cnn.layers:
+        for layer in frames_diff_cnn.layers:
             layer.trainable = cnn_trainable
+    
+        frames_diff_cnn = TimeDistributed( frames_diff_cnn,name='frames_diff_CNN' )(frames_diff_input)
+        frames_diff_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_2_' )(frames_diff_cnn)
+        frames_diff_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_2_' )(frames_diff_cnn)
 
-        keypoints_cnn = TimeDistributed( keypoints_cnn,name='keypoints_CNN' )(keypoints_input)
-        keypoints_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_2_' )(keypoints_cnn)
-        keypoints_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_2_' )(keypoints_cnn)
+        frames_diff_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
 
-        keypoints_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(keypoints_cnn)
-        keypoints_lstm = BatchNormalization( axis = -1 )(keypoints_lstm)
+        frames_diff_lstm = BatchNormalization( axis = -1 )(frames_diff_lstm)
 
-    if limbs:
-        limbs_lstm = MaxPooling2D((2,2))(limbs_lstm)
-        x1 = Flatten()(limbs_lstm) 
+    if frames:
+        frames_lstm = MaxPooling2D((2,2))(frames_lstm)
+        x1 = Flatten()(frames_lstm) 
         x1 = Dense(64)(x1)
         x1 = LeakyReLU(alpha=0.1)(x1)
         
-    if keypoints:
-        keypoints_lstm = MaxPooling2D((2,2))(keypoints_lstm)
-        x2 = Flatten()(keypoints_lstm)
+    if differences:
+        frames_diff_lstm = MaxPooling2D((2,2))(frames_diff_lstm)
+        x2 = Flatten()(frames_diff_lstm)
         x2 = Dense(64)(x2)
         x2 = LeakyReLU(alpha=0.1)(x2)
-
+    
     if mode == "both":
         x = Concatenate(axis=-1)([x1, x2])
-    elif mode == "only_limbs":
+    elif mode == "only_frames":
         x = x1
-    elif mode == "only_keypoints":
+    elif mode == "only_differences":
         x = x2
 
     x = Dropout(dense_dropout, seed = seed)(x) 
@@ -97,12 +91,12 @@ def getProposedModelC(
     x = LeakyReLU(alpha=0.1)(x)
     x = Dropout(dense_dropout, seed = seed)(x)
     predictions = Dense(1, activation='sigmoid')(x)
-
+    
     if mode == "both":
-        model = Model(inputs=[limbs_input, keypoints_input], outputs=predictions)
-    elif mode == "only_limbs":
-        model = Model(inputs=limbs_input, outputs=predictions)
-    elif mode == "only_keypoints":
-        model = Model(inputs=keypoints_input, outputs=predictions)
+        model = Model(inputs=[frames_input, frames_diff_input], outputs=predictions)
+    elif mode == "only_frames":
+        model = Model(inputs=frames_input, outputs=predictions)
+    elif mode == "only_differences":
+        model = Model(inputs=frames_diff_input, outputs=predictions)
 
     return model

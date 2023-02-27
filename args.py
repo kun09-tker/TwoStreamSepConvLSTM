@@ -5,7 +5,7 @@ def setArgs():
     parser.add_argument('--vidLen', type=int, default=32, help='Number of frames in a clip')
     parser.add_argument('--batchSize', type=int, default=4, help='Training batch size')
     parser.add_argument('--resume', help='whether training should resume from the previous checkpoint',action='store_true')
-    parser.add_argument('--mode', type=str, default='both', help='model type - both, only_limbs, only_keypoints', choices=['both', 'only_limbs', 'only_keypoints']) 
+    parser.add_argument('--mode', type=str, default='both', help='model type - both, only_frames, only_differences', choices=['both', 'only_frames', 'only_differences']) 
     parser.add_argument('--dirinp', type=str)
     parser.add_argument('--fusionType', type=str, default='C', help='fusion type - A for add, M for multiply, C for concat', choices=['C','A','M']) 
     parser.add_argument('--savePath', type=str, default='/gdrive/My Drive/THESIS/Data', help='folder path to save the models')
@@ -17,6 +17,7 @@ def setArgs():
     parser.add_argument('--DatasetName', type=str)
     parser.add_argument('--version', type=int, default=0)
     parser.add_argument('--cnnTrainable', type=int)
+    parser.add_argument('--typePart', type=str, default='limb')
     # args = parser.parse_args()
     # train(args)
     return parser
