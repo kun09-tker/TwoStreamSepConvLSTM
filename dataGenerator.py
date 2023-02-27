@@ -110,14 +110,14 @@ class DataGenerator(Sequence):
             video = np.flip(m=video, axis=2)
         return video   
     
-    def random_rotation(self, video, rg, prob=0.5, channel_axis=2,
+    def random_rotation(self, video, rg, prob=0.5, row_axis=0, col_axis=1, channel_axis=2,
                         fill_mode='nearest', cval=0., interpolation_order=1):
         s = np.random.rand()
         if s > prob:
             return video
         theta = np.random.uniform(-rg, rg)
         for i in range(np.shape(video)[0]):
-            x = apply_affine_transform(video[i], theta=theta, channel_axis=channel_axis,
+            x = apply_affine_transform(video[i, :, :, :], theta=theta,row_axis=row_axis ,col_axis=col_axis, channel_axis=channel_axis,
                                        fill_mode=fill_mode, cval=cval,
                                        order=interpolation_order)
             video[i] = x
