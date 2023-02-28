@@ -111,8 +111,8 @@ class DataGenerator(Sequence):
             random_start = random.choice(range(len(data) - self.target_heatmap + 1))
             indexes_choice = [random_start+i for i in range(self.target_heatmap)]
         else:
-            random_start = random.choice(range(limit))
-            indexes_choice = [random_start+2*i for i in range(self.target_heatmap + 1)]
+            random_start = random.choice(range(limit + 1))
+            indexes_choice = [random_start+2*i for i in range(self.target_heatmap)]
         return [data[idx] for idx in indexes_choice]
         
     
