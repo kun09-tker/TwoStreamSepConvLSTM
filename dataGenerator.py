@@ -113,7 +113,7 @@ class DataGenerator(Sequence):
         else:
             random_start = random.choice(range(limit + 1))
             indexes_choice = [random_start+2*i for i in range(self.target_heatmap)]
-        return [data[idx] for idx in indexes_choice]
+        return np.array([data[idx] for idx in indexes_choice])
         
     
     def random_flip(self, video, prob):
