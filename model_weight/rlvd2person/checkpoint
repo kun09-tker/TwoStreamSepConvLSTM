@@ -1,0 +1,2 @@
+model_checkpoint_path: "rlv2_yolox_currentModel"
+all_model_checkpoint_paths: "rlv2_yolox_currentModel"

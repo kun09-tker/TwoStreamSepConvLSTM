@@ -15,7 +15,6 @@ def setArgs():
     parser.add_argument('--resumeLearningRate', type=float, default=5e-05, help='learning rate to resume training from')
     parser.add_argument('--HeatMapSize', type=int, default=224, help='Size of 2D heatmap')
     parser.add_argument('--DatasetName', type=str)
-    parser.add_argument('--version', type=int, default=0)
     parser.add_argument('--cnnTrainable', type=int)
     parser.add_argument('--typePart', type=str, default='limb')
     # args = parser.parse_args()

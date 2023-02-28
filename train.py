@@ -131,9 +131,9 @@ def train(args):
         callbacks= callback_list
     )
 
-    version = args.version
+    # version = args.version
     
-    model.save(f'{dataset}_save_version_{version}')
+    # model.save(f'{dataset}_save_version_{version}')
 
 
 def trainTwoStreamSeparateConvLSTM(dirinp
@@ -146,7 +146,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 , vid_len = 32
                                 , batch_size = 4
                                 , HeatMapSize = 224
-                                , version = 0
+                                # , version = 0
                                 , cnn_trainable = 1
                                 , type_part = 'limb'
                                 ):
@@ -162,7 +162,6 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--resumePath', resume_path,
             '--DatasetName', DatasetName,
             '--HeatMapSize', str(HeatMapSize),
-            '--version', str(version),
             '--cnnTrainable', str(cnn_trainable),
             '--typePart', type_part
         ])
@@ -176,7 +175,6 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--savePath', save_path,
             '--DatasetName', DatasetName,
             '--HeatMapSize', str(HeatMapSize),
-            '--version', str(version),
             '--cnnTrainable', str(cnn_trainable),
             '--typePart', type_part
         ])

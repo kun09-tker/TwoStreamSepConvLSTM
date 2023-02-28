@@ -1,2 +1,0 @@
-model_checkpoint_path: "rwf2000_best_val_acc_Model"
-all_model_checkpoint_paths: "rwf2000_best_val_acc_Model"
