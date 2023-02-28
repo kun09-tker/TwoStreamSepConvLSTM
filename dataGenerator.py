@@ -98,11 +98,23 @@ class DataGenerator(Sequence):
         if self.mode == "only_differences":
             return [batch_differences], batch_y
         
+    # def uniform_sampling(self, data):
+    #     indexes = np.arange(len(data))
+    #     part = int(len(data)/self.target_heatmap)
+    #     indexes_choice = [random.choice(indexes[i*part:(i+1)*part])  for i in range(self.target_heatmap)]
+    #     return np.array([data[idx] for idx in indexes_choice])
+
+
     def uniform_sampling(self, data):
-        indexes = np.arange(len(data))
-        part = int(len(data)/self.target_heatmap)
-        indexes_choice = [random.choice(indexes[i*part:(i+1)*part])  for i in range(self.target_heatmap)]
-        return np.array([data[idx] for idx in indexes_choice])
+        limit = (len(data) - self.target_heatmap*2)
+        if limit < 0:
+            random_start = random.choice(range(len(data) - self.target_heatmap + 1))
+            indexes_choice = [random_start+i for i in range(self.target_heatmap)]
+        else:
+            random_start = random.choice(range(limit))
+            indexes_choice = [random_start+2*i for i in range(self.target_heatmap + 1)]
+        return [data[idx] for idx in indexes_choice]
+        
     
     def random_flip(self, video, prob):
         s = np.random.rand()
