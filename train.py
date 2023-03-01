@@ -142,6 +142,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 , DatasetName = 'rwf2000'
                                 , resume_path = 'NOT_SET'
                                 , resume = False
+                                , resumeLearningRate = 1e-06
                                 , num_epochs = 50
                                 , vid_len = 32
                                 , batch_size = 4
@@ -160,6 +161,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--dirinp', dirinp,
             '--savePath', save_path,
             '--resumePath', resume_path,
+            '--resumeLearningRate', str(resumeLearningRate),
             '--DatasetName', DatasetName,
             '--HeatMapSize', str(HeatMapSize),
             '--cnnTrainable', str(cnn_trainable),
