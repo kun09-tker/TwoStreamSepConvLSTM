@@ -73,14 +73,14 @@ def train(args):
         # if dataset == "hockey" or dataset == "movies":
         #     print('> loading weights pretrained on rwf dataset from', rwfPretrainedPath)
         #     model.load_weights(rwfPretrainedPath)
-        optimizer = Adam(lr=initial_learning_rate, amsgrad=True)
+        optimizer = Adam(learning_rate=initial_learning_rate, amsgrad=True)
         model.compile(optimizer=optimizer, loss=loss, metrics=['acc'])
         print('> new model created')    
     else:
         print('> getting the model from...', currentModelPath)  
         # if dataset == 'rwf2000':
         model =  model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode, frame_diff_interval=frame_diff_interval)
-        optimizer = Adam(lr=resume_learning_rate, amsgrad=True)
+        optimizer = Adam(learning_rate=resume_learning_rate, amsgrad=True)
         model.compile(optimizer=optimizer, loss=loss, metrics=['acc'])
         model.load_weights(f'{currentModelPath}')
         # elif  dataset == "hockey" or dataset == "movies":
