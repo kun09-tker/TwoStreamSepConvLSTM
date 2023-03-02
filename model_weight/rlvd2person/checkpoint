@@ -1,2 +1,2 @@
-model_checkpoint_path: "rlv-2person-yolox_best_val_acc_Model"
-all_model_checkpoint_paths: "rlv-2person-yolox_best_val_acc_Model"
+model_checkpoint_path: "rlv-2person-yolox_currentModel"
+all_model_checkpoint_paths: "rlv-2person-yolox_currentModel"
