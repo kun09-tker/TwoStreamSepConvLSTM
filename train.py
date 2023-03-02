@@ -139,14 +139,15 @@ def train(args):
 def trainTwoStreamSeparateConvLSTM(dirinp
                                 , save_path
                                 , mode = 'both'
-                                , DatasetName = 'rwf2000'
+                                , dataset_name = 'rwf2000'
                                 , resume_path = 'NOT_SET'
                                 , resume = False
-                                , resumeLearningRate = 1e-06
+                                , resume_learning_rate = 1e-06
                                 , num_epochs = 50
                                 , vid_len = 32
                                 , batch_size = 4
-                                , HeatMapSize = 224
+                                , heatmap_size = 224
+                                , learning_rate = 1e-06
                                 # , version = 0
                                 , cnn_trainable = 1
                                 , type_part = 'limb'
@@ -156,14 +157,15 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--numEpochs', str(num_epochs),
             '--vidLen', str(vid_len),
             '--batchSize', str(batch_size),
+            '--LearningRate', str(learning_rate),
             '--mode', mode,
             '--resume',
             '--dirinp', dirinp,
             '--savePath', save_path,
             '--resumePath', resume_path,
-            '--resumeLearningRate', str(resumeLearningRate),
-            '--DatasetName', DatasetName,
-            '--HeatMapSize', str(HeatMapSize),
+            '--resumeLearningRate', str(resume_learning_rate),
+            '--DatasetName', dataset_name,
+            '--HeatMapSize', str(heatmap_size),
             '--cnnTrainable', str(cnn_trainable),
             '--typePart', type_part
         ])
@@ -172,11 +174,12 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--numEpochs', str(num_epochs),
             '--vidLen', str(vid_len),
             '--batchSize', str(batch_size),
+            '--LearningRate', str(learning_rate),
             '--mode', mode,
             '--dirinp', dirinp,
             '--savePath', save_path,
-            '--DatasetName', DatasetName,
-            '--HeatMapSize', str(HeatMapSize),
+            '--DatasetName', dataset_name,
+            '--HeatMapSize', str(heatmap_size),
             '--cnnTrainable', str(cnn_trainable),
             '--typePart', type_part
         ])
