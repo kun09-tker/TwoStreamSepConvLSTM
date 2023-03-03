@@ -19,21 +19,24 @@ class DataGenerator(Sequence):
     def __init__(self, directory, type_part = 'limb',batch_size=1, shuffle=False, target_heatmap=32, resize=224, frame_diff_interval=1, data_augmentation = True, mode="both"): 
         # Initialize the params
         self.batch_size = batch_size
-        self.directory = directory
-        self.type_part = type_part
+        self.directory = directory # địa chỉ của file.pkl (ví dụ file train.pkl)
+        self.type_part = type_part # chọn "limb" hay "keypoint"
         self.shuffle = shuffle
-        self.data_aug = data_augmentation
-        self.target_heatmap = target_heatmap
+        self.data_aug = data_augmentation 
+        self.target_heatmap = target_heatmap # số heatmap đầu vào mỗi batch_size (ví dụ là 32)
         self.mode = mode  #['both', 'only_frames', 'only_differences']
-        self.resize = resize
+        self.resize = resize # chính là H và W (H = W)
         ratio = self.resize / 64
         self.ratio = (ratio, ratio)
-        self.frame_diff_interval = frame_diff_interval
+        self.frame_diff_interval = frame_diff_interval # sự khác nhau của frame_diff_interval liên tiếp
         self.X_path, self.Y_dict = self.spread_pkl()
-        self.shuffle_index()
+        # self.shuffle_index()
         return None
 
     def spread_pkl(self):
+        # tạo một folder tên spread_pkl để chứa các file.pkl của một video
+        # X_path là mảng chứa địa chỉ của file.pkl theo format spread_pkl/ten_video.pkl
+        # Y_dict là danh sách theo format {địa chỉ video:label}
         if not os.path.exists("spread_pkl"):
             os.mkdir("spread_pkl")
         anno = load(self.directory)
@@ -45,9 +48,9 @@ class DataGenerator(Sequence):
             dump(video, f"spread_pkl/{video['frame_dir']}.pkl")
         return X_path, Y_dict
 
-    def shuffle_index(self):
-        self.indexes = np.arange(len(self.X_path))
-        np.random.shuffle(self.indexes)
+    # def shuffle_index(self):
+    #     self.indexes = np.arange(len(self.X_path))
+    #     np.random.shuffle(self.indexes)
 
     def __len__(self):
         # calculate the iterations of each epoch
@@ -99,6 +102,7 @@ class DataGenerator(Sequence):
             return [batch_differences], batch_y
         
     def uniform_sampling(self, data):
+        # ví dụ self.target_heatmap = 32 thì sẽ chia video thành 32 khoảng bằng nhau, rồi lấy ngẫu nhiên 1 frame trong từng khoảng đó
         indexes = np.arange(len(data))
         part = int(len(data)/self.target_heatmap)
         indexes_choice = [random.choice(indexes[i*part:(i+1)*part])  for i in range(self.target_heatmap)]
@@ -182,7 +186,9 @@ class DataGenerator(Sequence):
         elif self.mode == "only_differences":
             frames = False
             differences = True
+        # load file .pkl của video
         data = load(path)
+        # chuyển thành heatmap dạng TxWxH
         data = to_heatmap(data, flag=self.type_part, ratio=self.ratio)
         data = self.uniform_sampling(data)
 
