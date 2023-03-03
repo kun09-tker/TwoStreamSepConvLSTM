@@ -71,16 +71,12 @@ def getProposedModelC(
         frames_lstm = MaxPooling2D((2,2))(frames_lstm)
         x1 = Flatten()(frames_lstm) 
         x1 = Dense(128)(x1)
-        x1 = Dropout(dense_dropout, seed = seed)(x1)
-        x1 = Dense(64)(x1)
         x1 = LeakyReLU(alpha=0.1)(x1)
         
     if differences:
         frames_diff_lstm = MaxPooling2D((2,2))(frames_diff_lstm)
         x2 = Flatten()(frames_diff_lstm)
         x2 = Dense(128)(x2)
-        x2 = Dropout(dense_dropout, seed = seed)(x2)
-        x2 = Dense(64)(x2)
         x2 = LeakyReLU(alpha=0.1)(x2)
     
     if mode == "both":
@@ -91,7 +87,7 @@ def getProposedModelC(
         x = x2
 
     x = Dropout(dense_dropout, seed = seed)(x) 
-    x = Dense(16)(x)
+    x = Dense(32)(x)
     x = LeakyReLU(alpha=0.1)(x)
     x = Dropout(dense_dropout, seed = seed)(x)
     predictions = Dense(1, activation='sigmoid')(x)
