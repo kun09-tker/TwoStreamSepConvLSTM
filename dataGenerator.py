@@ -30,7 +30,7 @@ class DataGenerator(Sequence):
         self.ratio = (ratio, ratio)
         self.frame_diff_interval = frame_diff_interval # sự khác nhau của frame_diff_interval liên tiếp
         self.X_path, self.Y_dict = self.spread_pkl()
-        # self.shuffle_index()
+        self.shuffle_index()
         return None
 
     def spread_pkl(self):
@@ -48,9 +48,9 @@ class DataGenerator(Sequence):
             dump(video, f"spread_pkl/{video['frame_dir']}.pkl")
         return X_path, Y_dict
 
-    # def shuffle_index(self):
-    #     self.indexes = np.arange(len(self.X_path))
-    #     np.random.shuffle(self.indexes)
+    def shuffle_index(self):
+        self.indexes = np.arange(len(self.X_path))
+        np.random.shuffle(self.indexes)
 
     def __len__(self):
         # calculate the iterations of each epoch
