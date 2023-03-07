@@ -173,7 +173,7 @@ class DataGenerator(Sequence):
         out = []
         for i in range(num_frames - k):
             out.append(video[i+k] - video[i])
-        return np.array(out,dtype=np.float32)
+        return np.array(out)
     
     def load_data(self, path):
 
@@ -198,12 +198,12 @@ class DataGenerator(Sequence):
             data = self.upsample_downsample(data,prob=0.5)
         
         if frames:
-            data = np.array(data, dtype=np.float32)
+            data = np.array(data)
             assert (data.shape == (self.target_heatmap,self.resize, self.resize,3)), str(data.shape)
 
         if differences:
             diff_data = self.frame_difference(data)
-            diff_data = np.array(diff_data, dtype=np.float32)
+            diff_data = np.array(diff_data)
             assert (diff_data.shape == (self.target_heatmap - self.frame_diff_interval, self.resize, self.resize, 3)), str(data.shape)
 
         if self.mode == "both":
