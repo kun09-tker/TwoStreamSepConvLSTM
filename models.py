@@ -36,7 +36,7 @@ def getProposedModelC(
 
         frames_input = Input(shape=(seq_len, size, size, 3),name='frames_input')
         frames_cnn = MobileNetV2( input_shape = (size,size,3), alpha=0.35, weights='imagenet', include_top = False)
-        frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-20].output] ) # taking only upto block 13
+        frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-30].output] ) # taking only upto block 13
         
         for layer in frames_cnn.layers:
             layer.trainable = cnn_trainable
@@ -45,7 +45,7 @@ def getProposedModelC(
         frames_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_1_' )( frames_cnn)
         frames_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(frames_cnn)
 
-        frames_lstm = SepConvLSTM2D( filters = 256, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+        frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
 
 
         frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
@@ -54,7 +54,7 @@ def getProposedModelC(
 
         frames_diff_input = Input(shape=(seq_len - frame_diff_interval, size, size, 3),name='frames_diff_input')
         frames_diff_cnn = MobileNetV2( input_shape=(size,size,3), alpha=0.35, weights='imagenet', include_top = False)
-        frames_diff_cnn = Model( inputs = [frames_diff_cnn.layers[0].input], outputs = [frames_diff_cnn.layers[-20].output] ) # taking only upto block 13
+        frames_diff_cnn = Model( inputs = [frames_diff_cnn.layers[0].input], outputs = [frames_diff_cnn.layers[-30].output] ) # taking only upto block 13
     
         for layer in frames_diff_cnn.layers:
             layer.trainable = cnn_trainable
@@ -63,20 +63,20 @@ def getProposedModelC(
         frames_diff_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_2_' )(frames_diff_cnn)
         frames_diff_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_2_' )(frames_diff_cnn)
 
-        frames_diff_lstm = SepConvLSTM2D( filters = 256, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+        frames_diff_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
 
         frames_diff_lstm = BatchNormalization( axis = -1 )(frames_diff_lstm)
 
     if frames:
         frames_lstm = MaxPooling2D((2,2))(frames_lstm)
         x1 = Flatten()(frames_lstm) 
-        x1 = Dense(128)(x1)
+        x1 = Dense(64)(x1)
         x1 = LeakyReLU(alpha=0.1)(x1)
         
     if differences:
         frames_diff_lstm = MaxPooling2D((2,2))(frames_diff_lstm)
         x2 = Flatten()(frames_diff_lstm)
-        x2 = Dense(128)(x2)
+        x2 = Dense(64)(x2)
         x2 = LeakyReLU(alpha=0.1)(x2)
     
     if mode == "both":
@@ -87,7 +87,7 @@ def getProposedModelC(
         x = x2
 
     x = Dropout(dense_dropout, seed = seed)(x) 
-    x = Dense(32)(x)
+    x = Dense(16)(x)
     x = LeakyReLU(alpha=0.1)(x)
     x = Dropout(dense_dropout, seed = seed)(x)
     predictions = Dense(1, activation='sigmoid')(x)
