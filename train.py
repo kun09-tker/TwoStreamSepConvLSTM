@@ -9,12 +9,12 @@ def train(args):
 
     mode = args.mode #['both', 'only_frames', 'only_differences']
 
-    if args.fusionType != 'C':
-        if args.mode != 'both':
-            print("Only Concat fusion supports one stream versions. Changing mode to /'both/'...")
-            mode = "both"
-        if args.lstmType == '3dconvblock':
-            raise Exception('3dconvblock instead of lstm is only available for fusionType C ! aborting execution...')
+    # if args.fusionType != 'C':
+    #     if args.mode != 'both':
+    #         print("Only Concat fusion supports one stream versions. Changing mode to /'both/'...")
+    #         mode = "both"
+    #     if args.lstmType == '3dconvblock':
+    #         raise Exception('3dconvblock instead of lstm is only available for fusionType C ! aborting execution...')
 
     if args.fusionType == 'C':
         model_function = getProposedModelC
