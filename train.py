@@ -20,8 +20,8 @@ def train(args):
         model_function = getProposedModelC
     # elif args.fusionType == 'A':
     #     model_function = models.getProposedModelA
-    # elif args.fusionType == 'M':
-    #     model_function = models.getProposedModelM
+    elif args.fusionType == 'M':
+        model_function = models.getProposedModelM
     
     initial_learning_rate = args.LearningRate
     resume_learning_rate = args.resumeLearningRate
