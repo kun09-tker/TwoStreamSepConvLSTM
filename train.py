@@ -1,4 +1,4 @@
-from .models import getProposedModelC
+from .models import getProposedModelC, getProposedModelM
 import os
 from .utils import *
 from .dataGenerator import DataGenerator
@@ -21,7 +21,7 @@ def train(args):
     # elif args.fusionType == 'A':
     #     model_function = models.getProposedModelA
     elif args.fusionType == 'M':
-        model_function = models.getProposedModelM
+        model_function = getProposedModelM
     
     initial_learning_rate = args.LearningRate
     resume_learning_rate = args.resumeLearningRate
@@ -140,6 +140,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 , save_path
                                 , mode = 'both'
                                 , dataset_name = 'rwf2000'
+                                , fusion_type = 'C'
                                 , resume_path = 'NOT_SET'
                                 , resume = False
                                 , resume_learning_rate = 1e-06
@@ -158,6 +159,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--vidLen', str(vid_len),
             '--batchSize', str(batch_size),
             '--LearningRate', str(learning_rate),
+            '--fusionType', fusion_type,
             '--mode', mode,
             '--resume',
             '--dirinp', dirinp,
@@ -175,6 +177,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--vidLen', str(vid_len),
             '--batchSize', str(batch_size),
             '--LearningRate', str(learning_rate),
+            '--fusionType', fusion_type,
             '--mode', mode,
             '--dirinp', dirinp,
             '--savePath', save_path,
