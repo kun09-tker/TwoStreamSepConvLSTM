@@ -100,7 +100,7 @@ def train(args):
         # if dataset == 'rwf2000':
         model =  model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode, frame_diff_interval=frame_diff_interval)
         optimizer = Adam(learning_rate=resume_learning_rate, amsgrad=True)
-        model.compile(optimizer=optimizer, loss=loss, metrics=['acc'])
+        model.compile(optimizer=optimizer, loss=loss, metrics=['acc', f1_m])
         model.load_weights(f'{currentModelPath}')
         # elif  dataset == "hockey" or dataset == "movies":
         #     model =  model_function(size=input_frame_size, seq_len=vid_len,cnn_trainable=cnn_trainable, frame_diff_interval = frame_diff_interval, mode=mode, lstm_type=lstm_type)
@@ -122,7 +122,7 @@ def train(args):
         currentModelPath, monitor='loss', verbose=0, save_best_only=False, save_weights_only=True, mode='auto', save_freq='epoch')
         
     modelcheckpointVal = ModelCheckpoint(
-        bestValPath, monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
+        bestValPath, monitor='val_f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
 
     historySavePath = os.path.join(save_path, 'results', str(dataset))
     save_training_history = SaveTrainingCurves(save_path = historySavePath)
