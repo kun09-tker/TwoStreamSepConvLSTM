@@ -16,9 +16,10 @@ class DataGenerator(Sequence):
         If you want to load file with other data format, please fix the method of "load_data" as you want
     """
 
-    def __init__(self, directory, type_part = 'limb',batch_size=1, shuffle=False, target_heatmap=32, resize=224, frame_diff_interval=1, data_augmentation = True, mode="both"): 
+    def __init__(self, directory, sample=True, type_part = 'limb',batch_size=1, shuffle=False, target_heatmap=32, resize=224, frame_diff_interval=1, data_augmentation = True, mode="both"): 
         # Initialize the params
         self.batch_size = batch_size
+        self.sample = sample,
         self.directory = directory # địa chỉ của file.pkl (ví dụ file train.pkl)
         self.type_part = type_part # chọn "limb" hay "keypoint"
         self.shuffle = shuffle
@@ -105,7 +106,10 @@ class DataGenerator(Sequence):
         # ví dụ self.target_heatmap = 32 thì sẽ chia video thành 32 khoảng bằng nhau, rồi lấy ngẫu nhiên 1 frame trong từng khoảng đó
         indexes = np.arange(len(data))
         part = int(len(data)/self.target_heatmap)
-        indexes_choice = [random.choice(indexes[i*part:(i+1)*part])  for i in range(self.target_heatmap)]
+        if self.sample:
+            indexes_choice = [random.choice(indexes[i*part:(i+1)*part])  for i in range(self.target_heatmap)]
+        else:
+            indexes_choice = [indexes[i*part]  for i in range(self.target_heatmap)]
         return np.array([data[idx] for idx in indexes_choice])
 
 
