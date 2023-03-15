@@ -133,7 +133,7 @@ def train(args):
 
     # version = args.version
     
-    # model.save(f'{dataset}_save_version_{version}')
+    model.save(f'{dataset}')
 
 
 def trainTwoStreamSeparateConvLSTM(dirinp
