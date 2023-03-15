@@ -65,10 +65,10 @@ def evaluate(args):
     test_generator = DataGenerator(directory = f'{dirinp}/test.pkl',
                                     type_part=type_part,
                                     batch_size = batch_size,
-                                    shuffle = True,
+                                    shuffle = False,
                                     resize = input_heatmap_size,
                                     target_heatmap = vid_len,
-                                    data_augmentation=True,
+                                    data_augmentation=False,
                                     mode = mode)
 
     print('> getting the model from...', resume_path) 
