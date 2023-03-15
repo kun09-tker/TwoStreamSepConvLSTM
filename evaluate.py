@@ -63,6 +63,7 @@ def evaluate(args):
     loss = 'binary_crossentropy'
 
     test_generator = DataGenerator(directory = f'{dirinp}/val.pkl',
+                                sample = False,
                                 type_part=type_part,
                                 batch_size = batch_size,
                                 shuffle = False,
