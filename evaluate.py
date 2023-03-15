@@ -59,7 +59,7 @@ def evaluate(args):
     else:
         currentModelPath = resume_path
 
-    cnn_trainable = bool(args.cnnTrainable)
+    # cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
 
     test_generator = DataGenerator(directory = f'{dirinp}/test.pkl',
@@ -72,11 +72,11 @@ def evaluate(args):
                                     mode = mode)
 
     print('> getting the model from...', resume_path) 
-    model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode, frame_diff_interval=frame_diff_interval)
+    model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=False, mode=mode, frame_diff_interval=frame_diff_interval)
     optimizer = Adam(learning_rate=initial_learning_rate, amsgrad=True)
     model.compile(optimizer=optimizer, loss=loss, metrics=[f1_m]) 
     model.load_weights(f'{currentModelPath}').expect_partial()
-    model.trainable = False
+    
         
     print('> Summary of the model : ')
     model.summary(line_length=140)
