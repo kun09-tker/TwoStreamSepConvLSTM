@@ -62,15 +62,14 @@ def evaluate(args):
     # cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
 
-    test_generator = DataGenerator(directory = f'{dirinp}/val.pkl',
-                                    type_part=type_part,
-                                    # sample=False,
-                                    batch_size = batch_size,
-                                    shuffle = False,
-                                    resize = input_heatmap_size,
-                                    target_heatmap = vid_len,
-                                    data_augmentation=False,
-                                    mode = mode)
+    test_generator = DataGenerator(directory = f'{dirinp}/test.pkl',
+                                type_part=type_part,
+                                batch_size = batch_size,
+                                shuffle = False,
+                                resize = input_heatmap_size,
+                                target_heatmap = vid_len,
+                                data_augmentation=False,
+                                mode = mode)
 
     print('> getting the model from...', resume_path) 
     model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=False, mode=mode, frame_diff_interval=frame_diff_interval)
