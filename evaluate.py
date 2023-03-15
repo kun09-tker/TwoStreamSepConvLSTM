@@ -64,7 +64,7 @@ def evaluate(args):
 
     test_generator = DataGenerator(directory = f'{dirinp}/val.pkl',
                                     type_part=type_part,
-                                    sample=False,
+                                    # sample=False,
                                     batch_size = batch_size,
                                     shuffle = False,
                                     resize = input_heatmap_size,
