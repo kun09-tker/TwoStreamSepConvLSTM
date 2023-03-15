@@ -62,7 +62,7 @@ def evaluate(args):
     # cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
 
-    test_generator = DataGenerator(directory = f'{dirinp}/val.pkl',
+    test_generator = DataGenerator(directory = f'{dirinp}/test.pkl',
                                 sample = False,
                                 type_part=type_part,
                                 batch_size = batch_size,
