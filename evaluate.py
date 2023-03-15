@@ -25,7 +25,7 @@ def f1_m(y_true, y_pred):
 
 
 
-def evaluate(args):
+def evaluate(args, data_test):
 
     mode = args.mode #['both', 'only_frames', 'only_differences']
 
@@ -62,8 +62,8 @@ def evaluate(args):
     # cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
 
-    test_generator = DataGenerator(directory = f'{dirinp}/test.pkl',
-                                sample = False,
+    test_generator = DataGenerator(directory = f'{dirinp}/data_test.pkl',
+                                # sample = False,
                                 type_part=type_part,
                                 batch_size = batch_size,
                                 shuffle = False,
@@ -117,6 +117,7 @@ def evaluateTwoStreamSeparateConvLSTM(dirinp
                                 , heatmap_size = 224
                                 , learning_rate = 1e-06
                                 # , version = 0
+                                , data_test = 'test'
                                 , cnn_trainable = 1
                                 , type_part = 'limb'
                                 ):
@@ -153,4 +154,4 @@ def evaluateTwoStreamSeparateConvLSTM(dirinp
             '--cnnTrainable', str(cnn_trainable),
             '--typePart', type_part
         ])
-    evaluate(args)
+    evaluate(args, data_test)
