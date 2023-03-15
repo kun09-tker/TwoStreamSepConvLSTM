@@ -76,7 +76,7 @@ def evaluate(args):
     optimizer = Adam(learning_rate=initial_learning_rate, amsgrad=True)
     model.compile(optimizer=optimizer, loss=loss, metrics=[f1_m]) 
     model.load_weights(f'{currentModelPath}').expect_partial()
-    
+    model.trainable = False
         
     print('> Summary of the model : ')
     model.summary(line_length=140)
