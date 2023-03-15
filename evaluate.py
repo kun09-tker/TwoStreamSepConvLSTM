@@ -75,7 +75,7 @@ def evaluate(args):
     print('> getting the model from...', resume_path) 
     model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=False, mode=mode, frame_diff_interval=frame_diff_interval)
     optimizer = Adam(learning_rate=initial_learning_rate, amsgrad=True)
-    model.compile(optimizer=optimizer, loss=loss, metrics=[f1_m]) 
+    model.compile(optimizer=optimizer, loss=loss, metrics=["acc", f1_m]) 
     model.load_weights(f'{currentModelPath}').expect_partial()
     model.trainable = False
         
