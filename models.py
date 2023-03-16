@@ -7,20 +7,20 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
 from .sep_conv_rnn import SepConvLSTM2D
 
-def getProposedModelC(
-        size=224
-        , seq_len=32
-        , frame_diff_interval = 1
-        # , cnn_weight = 'imagenet'
-        ,cnn_trainable = True
-        # , lstm_type='sepconv'
-        , weight_decay = 2e-5
-        , mode = "both"
-        , cnn_dropout = 0.25
-        , lstm_dropout = 0.25
-        , dense_dropout = 0.3
-        , seed = 42
-    ):
+def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainable = True, lstm_type='sepconv', weight_decay = 2e-5, frame_diff_interval = 1, mode = "both", cnn_dropout = 0.25, lstm_dropout = 0.25, dense_dropout = 0.3, seed = 42):
+    """parameters:
+    size = height/width of each frame,
+    seq_len = number of frames in each sequence,
+    cnn_weight= None or 'imagenet'
+    mode = "only_frames" or "only_differences" or "both"
+       returns:
+    model
+    """
+    lstm_type='sepconv'
+    print('cnn_trainable:',cnn_trainable)
+    print('cnn dropout : ', cnn_dropout)
+    print('dense dropout : ', dense_dropout)
+    print('lstm dropout :', lstm_dropout)
 
     if mode == "both":
         frames = True
@@ -45,8 +45,14 @@ def getProposedModelC(
         frames_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_1_' )( frames_cnn)
         frames_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(frames_cnn)
 
-        frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
-
+        if lstm_type == 'sepconv':
+            frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+        # elif lstm_type == 'conv':    
+        #     frames_lstm = ConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='ConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+        # elif lstm_type == 'asepconv':    
+        #     frames_lstm = AttenSepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='AttenSepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+        # else:
+        #     raise Exception("lstm type not recognized!")
 
         frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
         
@@ -63,7 +69,14 @@ def getProposedModelC(
         frames_diff_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_2_' )(frames_diff_cnn)
         frames_diff_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_2_' )(frames_diff_cnn)
 
-        frames_diff_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+        if lstm_type == 'sepconv':
+            frames_diff_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+        elif lstm_type == 'conv':    
+            frames_diff_lstm = ConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='ConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+        elif lstm_type == 'asepconv':    
+            frames_diff_lstm = AttenSepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='AttenSepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+        else:
+            raise Exception("lstm type not recognized!")
 
         frames_diff_lstm = BatchNormalization( axis = -1 )(frames_diff_lstm)
 
@@ -151,7 +164,7 @@ def getProposedModelM(
         frames_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_1_' )( frames_cnn)
         frames_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(frames_cnn)
 
-        frames_lstm = SepConvLSTM2D( filters = 32, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+        frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
 
         frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
         
@@ -168,7 +181,7 @@ def getProposedModelM(
         frames_diff_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_2_' )(frames_diff_cnn)
         frames_diff_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_2_' )(frames_diff_cnn)
 
-        frames_diff_lstm = SepConvLSTM2D( filters = 32, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+        frames_diff_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
 
         frames_diff_lstm = BatchNormalization( axis = -1 )(frames_diff_lstm)
 
