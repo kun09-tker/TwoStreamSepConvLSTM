@@ -73,28 +73,41 @@ class DataGenerator(Sequence):
 
     def data_generation(self, batch_path):
         # loading X
-        batch_frames = []
-        batch_differences = []
-        if self.mode == "both":
+        if self.mode == 'limb+keypoint':
+            batch_differences_l = []
+            batch_differences_k = []
             for x in batch_path:
-                lb_data, kps_data = self.load_data(x)
-                batch_frames.append(lb_data)
-                batch_differences.append(kps_data)
+                data_l, data_k = self.load_data(x)
+                batch_differences_l.append(data_l)
+                batch_differences_k.append(data_k)
             batch_frames = np.array(batch_frames)
             batch_differences = np.array(batch_differences)
-        elif self.mode == "only_frames":
-            for x in batch_path:
-                data = self.load_data(x)
-                batch_frames.append(data)
-            batch_frames = np.array(batch_frames) 
-        elif self.mode == "only_differences":
-            for x in batch_path:
-                kps_data = self.load_data(x)
-                batch_differences.append(kps_data)
+        else:
+            batch_frames = []
+            batch_differences = []
+            if self.mode == "both":
+                for x in batch_path:
+                    data, differences = self.load_data(x)
+                    batch_frames.append(data)
+                    batch_differences.append(differences)
+                batch_frames = np.array(batch_frames)
+                batch_differences = np.array(batch_differences)
+            elif self.mode == "only_frames":
+                for x in batch_path:
+                    data = self.load_data(x)
+                    batch_frames.append(data)
+                batch_frames = np.array(batch_frames) 
+            elif self.mode == "only_differences":
+                for x in batch_path:
+                    data = self.load_data(x)
+                    batch_differences.append(data)
             batch_differences = np.array(batch_differences) 
         # loading Y
         batch_y = [self.Y_dict[x] for x in batch_path]
         batch_y = np.array(batch_y)
+
+        if self.mode == "limb+keypoint":
+            return [batch_differences_l, batch_differences_k], batch_y
         if self.mode == "both":
             return [batch_frames, batch_differences], batch_y
         if self.mode == "only_frames":
