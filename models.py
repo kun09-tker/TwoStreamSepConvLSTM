@@ -83,13 +83,13 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
     if frames:
         frames_lstm = MaxPooling2D((2,2))(frames_lstm)
         x1 = Flatten()(frames_lstm) 
-        x1 = Dense(64)(x1)
+        x1 = Dense(16)(x1)
         x1 = LeakyReLU(alpha=0.1)(x1)
         
     if differences:
         frames_diff_lstm = MaxPooling2D((2,2))(frames_diff_lstm)
         x2 = Flatten()(frames_diff_lstm)
-        x2 = Dense(64)(x2)
+        x2 = Dense(16)(x2)
         x2 = LeakyReLU(alpha=0.1)(x2)
     
     if mode == "both":
