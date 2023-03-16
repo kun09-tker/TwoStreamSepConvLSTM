@@ -179,6 +179,82 @@ class DataGenerator(Sequence):
             out.append(video[i+k] - video[i])
         return np.array(out)
     
+    def uniform_sampling_2(self, data_limb, data_kp):
+        # ví dụ self.target_heatmap = 32 thì sẽ chia video thành 32 khoảng bằng nhau, rồi lấy ngẫu nhiên 1 frame trong từng khoảng đó
+        indexes = np.arange(len(data_limb))
+        part = int(len(data_limb)/self.target_heatmap)
+        if self.sample:
+            indexes_choice = [random.choice(indexes[i*part:(i+1)*part])  for i in range(self.target_heatmap)]
+        else:
+            indexes_choice = [indexes[i*part]  for i in range(self.target_heatmap)]
+        return np.array([data_limb[idx] for idx in indexes_choice]), np.array([data_kp[idx] for idx in indexes_choice])
+
+
+    # def uniform_sampling(self, data):
+    #     limit = (len(data) - self.target_heatmap*2)
+    #     if limit < 0:
+    #         random_start = random.choice(range(len(data) - self.target_heatmap + 1))
+    #         indexes_choice = [random_start+i for i in range(self.target_heatmap)]
+    #     else:
+    #         random_start = random.choice(range(limit + 1))
+    #         indexes_choice = [random_start+2*i for i in range(self.target_heatmap)]
+    #     return np.array([data[idx] for idx in indexes_choice])
+        
+    
+    def random_flip_2(self, data_limb, data_kp, prob):
+        s = np.random.rand()
+        if s < prob:
+            data_limb = np.flip(m=data_limb, axis=2)
+            data_kp = np.flip(m=data_kp, axis=2)
+        return data_limb, data_kp   
+    
+    def random_rotation_2(self, data_limb, data_kp, rg, prob=0.5, row_axis=0, col_axis=1, channel_axis=2,
+                        fill_mode='nearest', cval=0., interpolation_order=1):
+        s = np.random.rand()
+        if s > prob:
+            return data_limb, data_kp
+        theta = np.random.uniform(-rg, rg)
+        for i in range(np.shape(data_limb)[0]):
+            x_limb = apply_affine_transform(data_limb[i, :, :, :], theta=theta,row_axis=row_axis ,col_axis=col_axis, channel_axis=channel_axis,
+                                       fill_mode=fill_mode, cval=cval,
+                                       order=interpolation_order)
+            x_kp = apply_affine_transform(data_kp[i, :, :, :], theta=theta,row_axis=row_axis ,col_axis=col_axis, channel_axis=channel_axis,
+                                       fill_mode=fill_mode, cval=cval,
+                                       order=interpolation_order)
+            data_limb[i] = x_limb
+            data_kp[i] = x_kp
+
+        return data_limb, data_kp
+    
+    def downsample_2(self,  data_limb, data_kp, ratio=0.5):
+        nb_return_frame = int(np.floor(ratio * len(data_limb)))
+        return_ind = [int(i) for i in np.linspace(1, len(data_limb), num=nb_return_frame)]
+        clip_limb = [data_limb[i-1] for i in return_ind]
+        clip_kp = [data_kp[i-1] for i in return_ind]
+        return np.concatenate((clip_limb, clip_limb), axis = 0), np.concatenate((clip_kp, clip_kp), axis = 0)
+    
+    def upsample_2(self, data_limb, data_kp, ratio=2):
+        num_frames = len(data_limb)
+        nb_return_frame = int(np.floor(ratio * len(data_limb)))    
+        return_ind = [int(i) for i in np.linspace(1, len(data_limb), num=nb_return_frame)]
+        clip_limb = [data_limb[i-1] for i in return_ind]
+        clip_kp = [data_kp[i-1] for i in return_ind]
+        s = np.random.randint(0,1)
+        if s:
+            return clip_limb[:num_frames], clip_kp[:num_frames]
+        else:
+            return clip_limb[num_frames:], clip_kp[num_frames:]
+
+    def upsample_downsample_2(self, data_limb, data_kp, prob=0.5):
+        s = np.random.rand()
+        if s>prob:
+            return data_limb, data_kp
+        s = np.random.randint(0,1)
+        if s:
+            return self.upsample_2(data_limb, data_kp)
+        else:
+            return self.downsample_2(data_limb, data_kp)
+    
     def load_data(self, path):
 
         if self.mode == "both":
@@ -190,32 +266,60 @@ class DataGenerator(Sequence):
         elif self.mode == "only_differences":
             frames = False
             differences = True
+        elif self.mode == 'limb+keypoint':
+            # differences = True
+            differences_kp_limb = True
         # load file .pkl của video
-        data = load(path)
-        # chuyển thành heatmap dạng TxWxH
-        data = to_heatmap(data, flag=self.type_part, ratio=self.ratio)
-        data = self.uniform_sampling(data)
+        if differences_kp_limb:
+            data = load(path)
+            # chuyển thành heatmap dạng TxWxH
+            data_limb = to_heatmap(data, flag='limb', ratio=self.ratio)
+            data_kp = to_heatmap(data, flag='keypoint', ratio=self.ratio)
 
-        if self.data_aug:
-            data = self.random_flip(data, prob=0.50)
-            data = self.random_rotation(data, rg=25, prob=0.8)
-            data = self.upsample_downsample(data,prob=0.5)
-        
-        if frames:
-            data = np.array(data)
-            assert (data.shape == (self.target_heatmap,self.resize, self.resize,3)), str(data.shape)
+            data_limb, data_kp = self.uniform_sampling_2(data_limb, data_kp)
 
-        if differences:
-            diff_data = self.frame_difference(data)
-            diff_data = np.array(diff_data)
-            assert (diff_data.shape == (self.target_heatmap - self.frame_diff_interval, self.resize, self.resize, 3)), str(data.shape)
+            if self.data_aug:
+                data_limb, data_kp = self.random_flip_2(data_limb, data_kp, prob=0.50)
+                data_limb, data_kp = self.random_rotation_2(data_limb, data_kp, rg=25, prob=0.8)
+                data_limb, data_kp = self.upsample_downsample_2(data_limb, data_kp,prob=0.5)
 
-        if self.mode == "both":
-            return data, diff_data
-        elif self.mode == "only_frames":
-            return data
-        elif self.mode == "only_differences":
-            return diff_data
+            # if differences:
+            data_limb = self.frame_difference(data_limb)
+            data_limb = np.array(data_limb)
+            assert (data_limb.shape == (self.target_heatmap - self.frame_diff_interval, self.resize, self.resize, 3)), str(data_limb.shape)
+
+            data_kp = self.frame_difference(data_kp)
+            data_kp = np.array(data_kp)
+            assert (data_kp.shape == (self.target_heatmap - self.frame_diff_interval, self.resize, self.resize, 3)), str(data_kp.shape)
+                
+            return data_limb, data_kp
+
+        else:
+            data = load(path)
+            # chuyển thành heatmap dạng TxWxH
+            data = to_heatmap(data, flag=self.type_part, ratio=self.ratio)
+            data = self.uniform_sampling(data)
+
+            if self.data_aug:
+                data = self.random_flip(data, prob=0.50)
+                data = self.random_rotation(data, rg=25, prob=0.8)
+                data = self.upsample_downsample(data,prob=0.5)
+            
+            if frames:
+                data = np.array(data)
+                assert (data.shape == (self.target_heatmap,self.resize, self.resize,3)), str(data.shape)
+
+            if differences:
+                diff_data = self.frame_difference(data)
+                diff_data = np.array(diff_data)
+                assert (diff_data.shape == (self.target_heatmap - self.frame_diff_interval, self.resize, self.resize, 3)), str(data.shape)
+
+            if self.mode == "both":
+                return data, diff_data
+            elif self.mode == "only_frames":
+                return data
+            elif self.mode == "only_differences":
+                return diff_data
 
     def on_epoch_end(self):
         # shuffle the data at each end of epoch

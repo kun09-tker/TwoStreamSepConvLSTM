@@ -31,6 +31,9 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
     elif mode == "only_differences":
         frames = False
         differences = True
+    elif mode == 'limb+keypoint':
+        differences = True
+        differences_kp = True
 
     if frames:
 
@@ -55,7 +58,24 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         #     raise Exception("lstm type not recognized!")
 
         frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
+
+    if differences_kp:
+        frames_input = Input(shape=(seq_len - frame_diff_interval, size, size, 3),name='frames_input')
+        frames_cnn = MobileNetV2( input_shape = (size,size,3), alpha=0.35, weights='imagenet', include_top = False)
+        frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-30].output] ) # taking only upto block 13
         
+        for layer in frames_cnn.layers:
+            layer.trainable = cnn_trainable
+
+        frames_cnn = TimeDistributed( frames_cnn,name='frames_CNN' )( frames_input )
+        frames_cnn = TimeDistributed( LeakyReLU(alpha=0.1), name='leaky_relu_1_' )( frames_cnn)
+        frames_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(frames_cnn)
+
+        if lstm_type == 'sepconv':
+            frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+        
+        frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
+
     if differences:
 
         frames_diff_input = Input(shape=(seq_len - frame_diff_interval, size, size, 3),name='frames_diff_input')
@@ -80,7 +100,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
 
         frames_diff_lstm = BatchNormalization( axis = -1 )(frames_diff_lstm)
 
-    if frames:
+    if frames or differences_kp:
         frames_lstm = MaxPooling2D((2,2))(frames_lstm)
         x1 = Flatten()(frames_lstm) 
         x1 = Dense(64)(x1)
@@ -92,7 +112,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         x2 = Dense(64)(x2)
         x2 = LeakyReLU(alpha=0.1)(x2)
     
-    if mode == "both":
+    if mode == "both" or  mode == 'limb+keypoint':
         x = Concatenate(axis=-1)([x1, x2])
     elif mode == "only_frames":
         x = x1
@@ -105,7 +125,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
     x = Dropout(dense_dropout, seed = seed)(x)
     predictions = Dense(1, activation='sigmoid')(x)
     
-    if mode == "both":
+    if mode == "both" or mode == 'limb+keypoint':
         model = Model(inputs=[frames_input, frames_diff_input], outputs=predictions)
     elif mode == "only_frames":
         model = Model(inputs=frames_input, outputs=predictions)
