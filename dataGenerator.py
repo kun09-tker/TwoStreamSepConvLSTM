@@ -80,8 +80,8 @@ class DataGenerator(Sequence):
                 data_l, data_k = self.load_data(x)
                 batch_differences_l.append(data_l)
                 batch_differences_k.append(data_k)
-            batch_frames = np.array(batch_frames)
-            batch_differences = np.array(batch_differences)
+            batch_differences_l = np.array(batch_differences_l)
+            batch_differences_k = np.array(batch_differences_k)
         else:
             batch_frames = []
             batch_differences = []
