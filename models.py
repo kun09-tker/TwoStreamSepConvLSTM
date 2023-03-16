@@ -25,13 +25,17 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
     if mode == "both":
         frames = True
         differences = True
+        differences_kp = False
     elif mode == "only_frames":
         frames = True
         differences = False
+        differences_kp = False
     elif mode == "only_differences":
         frames = False
         differences = True
+        differences_kp = False
     elif mode == 'limb+keypoint':
+        frames = False
         differences = True
         differences_kp = True
 
