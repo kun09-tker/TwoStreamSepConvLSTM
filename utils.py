@@ -24,18 +24,24 @@ class SaveTrainingCurves(CB):
             self.val_acc = history['val_acc']
             self.loss = history['loss']
             self.val_loss = history['val_loss']
+            self.f1_m = history['f1_m']
+            self.val_f1_m = history['val_f1_m']
         else:
             self.acc = []
             self.val_acc = []
             self.loss = []
             self.val_loss = []
+            self.f1_m = []
+            self.val_f1_m = []
     
     def on_epoch_end(self, epoch, logs = {}):
         self.acc.append(logs.get('acc'))
         self.val_acc.append(logs.get('val_acc'))
         self.loss.append(logs.get('loss'))
-        self.val_loss.append(logs.get('val_loss'))  
-        history = {'acc':self.acc, 'val_acc':self.val_acc,'loss':self.loss,'val_loss':self.val_loss}
+        self.val_loss.append(logs.get('val_loss'))
+        self.f1_m.append(logs.get('f1_m'))
+        self.val_f1_m.append(logs.get('val_f1_m'))    
+        history = {'acc':self.acc, 'val_acc':self.val_acc,'loss':self.loss,'val_loss':self.val_loss,'f1_m':self.f1_m, 'val_f1_m':self.val_f1_m}
         # csv
         historyInDrivePath = os.path.join(self.save_path ,'history.csv')
         pd.DataFrame(history).to_csv(historyInDrivePath) # gdrive
@@ -67,6 +73,18 @@ class SaveTrainingCurves(CB):
         plt.grid(True)
         plt.savefig('loss.png',bbox_inches='tight')  # local
         plt.savefig(os.path.join(self.save_path ,'loss.png'),bbox_inches='tight')  # gdrive
+        plt.close()
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(history['f1_m'])
+        plt.plot(history['val_f1_m'])
+        plt.title('model f1 score')
+        plt.ylabel('f1 score')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.grid(True)
+        plt.savefig('f1-score.png',bbox_inches='tight')  # local
+        plt.savefig(os.path.join(self.save_path ,'f1-score.png'),bbox_inches='tight')  # gdrive
         plt.close()
 
 

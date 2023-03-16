@@ -76,13 +76,14 @@ def train(args):
                                     mode = mode)
     
     val_generator = DataGenerator(directory = f'{dirinp}/val.pkl',
-                                type_part=type_part,
-                                batch_size = batch_size,
-                                shuffle = False,
-                                resize = input_heatmap_size,
-                                target_heatmap = vid_len,
-                                data_augmentation=False,
-                                mode = mode)
+                                    sample=False,
+                                    type_part=type_part,
+                                    batch_size = batch_size,
+                                    shuffle = False,
+                                    resize = input_heatmap_size,
+                                    target_heatmap = vid_len,
+                                    data_augmentation=False,
+                                    mode = mode)
 
     
     print('> cnn_trainable : ',cnn_trainable)
