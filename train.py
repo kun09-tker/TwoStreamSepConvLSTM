@@ -61,7 +61,7 @@ def train(args):
     else:
         currentModelPath = resume_path
     
-    bestValPath =  os.path.join(save_path, str(dataset) + '_best_val_acc_Model')
+    bestValPath =  os.path.join(save_path, str(dataset) + '_best_val_f1_Model')
 
     cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
