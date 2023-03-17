@@ -2,7 +2,7 @@ from .models import getProposedModelC, getProposedModelM
 import os
 from .utils import *
 from .dataGenerator import DataGenerator
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers.legacy import Adam
 from tensorflow.keras import backend as K
 from .args import setArgs
 
