@@ -102,9 +102,9 @@ class DataGenerator(Sequence):
                     data = self.load_data(x)
                     batch_differences.append(data)
             batch_differences = np.array(batch_differences) 
-            # loading Y
-            batch_y = [self.Y_dict[x] for x in batch_path]
-            batch_y = np.array(batch_y)
+        # loading Y
+        batch_y = [self.Y_dict[x] for x in batch_path]
+        batch_y = np.array(batch_y)
 
         if self.mode == "limb+keypoint":
             return [batch_differences_l, batch_differences_k], batch_y
