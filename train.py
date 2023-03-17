@@ -123,7 +123,7 @@ def train(args):
         currentModelPath, monitor='loss', verbose=0, save_best_only=False, save_weights_only=True, mode='auto', save_freq='epoch')
         
     modelcheckpointVal = ModelCheckpoint(
-        bestValPath, monitor='val_f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
+        bestValPath, monitor='f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
 
     historySavePath = os.path.join(save_path, 'results', str(dataset))
     save_training_history = SaveTrainingCurves(save_path = historySavePath)
