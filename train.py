@@ -61,7 +61,8 @@ def train(args):
     else:
         currentModelPath = resume_path
     
-    bestValPath =  os.path.join(save_path, str(dataset) + '_best_val_f1_Model')
+    bestValPath_val =  os.path.join(save_path, str(dataset) + '_best_val_f1_Model')
+    bestValPath_train =  os.path.join(save_path, str(dataset) + '_best_train_f1_Model')
 
     cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
@@ -122,14 +123,18 @@ def train(args):
     modelcheckpoint = ModelCheckpoint(
         currentModelPath, monitor='loss', verbose=0, save_best_only=False, save_weights_only=True, mode='auto', save_freq='epoch')
         
+    modelcheckpointTrain = ModelCheckpoint(
+        bestValPath_train, monitor='f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
+    
     modelcheckpointVal = ModelCheckpoint(
-        bestValPath, monitor='f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
+        bestValPath_val, monitor='val_f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
 
     historySavePath = os.path.join(save_path, 'results', str(dataset))
     save_training_history = SaveTrainingCurves(save_path = historySavePath)
 
     callback_list = [
                     modelcheckpoint,
+                    modelcheckpointTrain,
                     modelcheckpointVal,
                     save_training_history
                     ]
