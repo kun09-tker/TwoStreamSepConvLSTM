@@ -75,7 +75,7 @@ def evaluate(args, data_test):
     print('> getting the model from...', resume_path) 
     model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=False, mode=mode, frame_diff_interval=frame_diff_interval)
     optimizer = Adam(learning_rate=initial_learning_rate, amsgrad=True)
-    model.compile(optimizer=optimizer, loss=loss, metrics=["acc", f1_m]) 
+    model.compile(optimizer=optimizer, loss=loss, metrics=["acc", precision_m, recall_m, f1_m]) 
     model.load_weights(f'{currentModelPath}').expect_partial()
     model.trainable = False
         
@@ -95,7 +95,10 @@ def evaluate(args, data_test):
     print("     Results        ")
     print("====================")
     print("> Test Loss:", test_results[0])
-    print("> Test f1_score:", test_results[1])
+    print("> Test acc_score:", test_results[1])
+    print("> Test precision_score:", test_results[2])
+    print("> Test recall_score:", test_results[3])
+    print("> Test f1_score:", test_results[4])
     print("====================")
     # save_as_csv(train_results, "", 'train_results.csv')
     # save_as_csv(test_results, "", 'test_resuls.csv')
