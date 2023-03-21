@@ -1,4 +1,4 @@
-from .models import getProposedModelC, getProposedModelM
+from .models import getProposedModelC
 import os
 from .utils import *
 from .dataGenerator import DataGenerator
@@ -27,6 +27,7 @@ def f1_m(y_true, y_pred):
 def train(args):
 
     mode = args.mode #['both', 'only_frames', 'only_differences']
+    backbone = args.backBone
 
     # if args.fusionType != 'C':
     #     if args.mode != 'both':
@@ -39,8 +40,6 @@ def train(args):
         model_function = getProposedModelC
     # elif args.fusionType == 'A':
     #     model_function = models.getProposedModelA
-    elif args.fusionType == 'M':
-        model_function = getProposedModelM
     
     initial_learning_rate = args.LearningRate
     resume_learning_rate = args.resumeLearningRate
@@ -90,7 +89,7 @@ def train(args):
     print('> cnn_trainable : ',cnn_trainable)
     if create_new_model:
         print('> creating new model...')
-        model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode, frame_diff_interval=frame_diff_interval)
+        model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=cnn_trainable, mode=mode, frame_diff_interval=frame_diff_interval, backbone=backbone)
         # if dataset == "hockey" or dataset == "movies":
         #     print('> loading weights pretrained on rwf dataset from', rwfPretrainedPath)
         #     model.load_weights(rwfPretrainedPath)
@@ -177,6 +176,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
                                 # , version = 0
                                 , cnn_trainable = 1
                                 , type_part = 'limb'
+                                , backbone = 'mobilenetv2'
                                 ):
     if resume:
         args = setArgs().parse_args([
@@ -194,7 +194,8 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--DatasetName', dataset_name,
             '--HeatMapSize', str(heatmap_size),
             '--cnnTrainable', str(cnn_trainable),
-            '--typePart', type_part
+            '--typePart', type_part,
+            '--backBone', backbone
         ])
     else:
         args = setArgs().parse_args([
@@ -209,6 +210,7 @@ def trainTwoStreamSeparateConvLSTM(dirinp
             '--DatasetName', dataset_name,
             '--HeatMapSize', str(heatmap_size),
             '--cnnTrainable', str(cnn_trainable),
-            '--typePart', type_part
+            '--typePart', type_part,
+            '--backBone', backbone
         ])
     train(args)
