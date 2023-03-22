@@ -1,4 +1,4 @@
-from .models import getProposedModelC, getProposedModelM
+from .models import getProposedModelC
 import os
 from .utils import *
 from .dataGenerator import DataGenerator
@@ -28,6 +28,7 @@ def f1_m(y_true, y_pred):
 def evaluate(args, data_test):
 
     mode = args.mode #['both', 'only_frames', 'only_differences']
+    backbone = args.backBone
 
     # if args.fusionType != 'C':
     #     if args.mode != 'both':
@@ -40,8 +41,8 @@ def evaluate(args, data_test):
         model_function = getProposedModelC
     # elif args.fusionType == 'A':
     #     model_function = models.getProposedModelA
-    elif args.fusionType == 'M':
-        model_function = getProposedModelM
+    # elif args.fusionType == 'M':
+    #     model_function = getProposedModelM
     
     initial_learning_rate = args.LearningRate
     dirinp = args.dirinp
@@ -73,7 +74,7 @@ def evaluate(args, data_test):
                                 mode = mode)
 
     print('> getting the model from...', resume_path) 
-    model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=False, mode=mode, frame_diff_interval=frame_diff_interval)
+    model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=False, mode=mode, frame_diff_interval=frame_diff_interval, backbone=backbone)
     optimizer = Adam(learning_rate=initial_learning_rate, amsgrad=True)
     model.compile(optimizer=optimizer, loss=loss, metrics=["acc", precision_m, recall_m, f1_m]) 
     model.load_weights(f'{currentModelPath}').expect_partial()
@@ -123,6 +124,7 @@ def evaluateTwoStreamSeparateConvLSTM(dirinp
                                 , data_test = 'test'
                                 , cnn_trainable = 1
                                 , type_part = 'limb'
+                                , backbone = 'mobilenetv2'
                                 ):
     if resume:
         args = setArgs().parse_args([
@@ -140,7 +142,8 @@ def evaluateTwoStreamSeparateConvLSTM(dirinp
             '--DatasetName', dataset_name,
             '--HeatMapSize', str(heatmap_size),
             '--cnnTrainable', str(cnn_trainable),
-            '--typePart', type_part
+            '--typePart', type_part,
+            '--backBone', backbone
         ])
     else:
         args = setArgs().parse_args([
@@ -155,6 +158,7 @@ def evaluateTwoStreamSeparateConvLSTM(dirinp
             '--DatasetName', dataset_name,
             '--HeatMapSize', str(heatmap_size),
             '--cnnTrainable', str(cnn_trainable),
-            '--typePart', type_part
+            '--typePart', type_part,
+            '--backBone', backbone
         ])
     evaluate(args, data_test)
