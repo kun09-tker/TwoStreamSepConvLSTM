@@ -41,7 +41,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         # frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-30].output] ) # taking only upto block 13
         if backbone == 'mobilenetv2':
             frames_cnn = MobileNetV2( input_shape = (size, size, 3), alpha=0.35, weights="imagenet", include_top = False)
-            frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-20].output] )
+            frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-30].output] )
         elif backbone == 'inceptionv3':
             frames_cnn = InceptionV3(input_shape = (size, size, 3), weights="imagenet", include_top = False)
             frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[40].output])
@@ -57,7 +57,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         frames_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(frames_cnn)
 
         if lstm_type == 'sepconv':
-            frames_lstm = SepConvLSTM2D( filters = 256, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+            frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
 
         frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
     if differences:
@@ -67,7 +67,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         # frames_diff_cnn = Model( inputs = [frames_diff_cnn.layers[0].input], outputs = [frames_diff_cnn.layers[-30].output] ) # taking only upto block 13
         if backbone == 'mobilenetv2':
             frames_diff_cnn = MobileNetV2( input_shape = (size, size, 3), alpha=0.35, weights="imagenet", include_top = False)
-            frames_diff_cnn = Model( inputs=[frames_diff_cnn.layers[0].input],outputs=[frames_diff_cnn.layers[-20].output] )
+            frames_diff_cnn = Model( inputs=[frames_diff_cnn.layers[0].input],outputs=[frames_diff_cnn.layers[-30].output] )
         elif backbone == 'inceptionv3':
             frames_diff_cnn = InceptionV3(input_shape = (size, size, 3), weights="imagenet", include_top = False)
             frames_diff_cnn = Model( inputs=[frames_diff_cnn.layers[0].input],outputs=[frames_diff_cnn.layers[40].output])
@@ -82,7 +82,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         frames_diff_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_2_' )(frames_diff_cnn)
 
         if lstm_type == 'sepconv':
-            frames_diff_lstm = SepConvLSTM2D( filters = 256, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+            frames_diff_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
 
         frames_diff_lstm = BatchNormalization( axis = -1 )(frames_diff_lstm)
 
