@@ -44,7 +44,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
             frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[-20].output] )
         elif backbone == 'inceptionv3':
             frames_cnn = InceptionV3(input_shape = (size, size, 3), weights="imagenet", include_top = False)
-            frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[32].output])
+            frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[40].output])
         elif backbone == 'resnet50':
             frames_cnn = ResNet50(input_shape = (size, size, 3), weights="imagenet", include_top = False)
             frames_cnn = Model( inputs=[frames_cnn.layers[0].input],outputs=[frames_cnn.layers[32].output] ) # taking only upto block 13
@@ -70,7 +70,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
             frames_diff_cnn = Model( inputs=[frames_diff_cnn.layers[0].input],outputs=[frames_diff_cnn.layers[-20].output] )
         elif backbone == 'inceptionv3':
             frames_diff_cnn = InceptionV3(input_shape = (size, size, 3), weights="imagenet", include_top = False)
-            frames_diff_cnn = Model( inputs=[frames_diff_cnn.layers[0].input],outputs=[frames_diff_cnn.layers[32].output])
+            frames_diff_cnn = Model( inputs=[frames_diff_cnn.layers[0].input],outputs=[frames_diff_cnn.layers[40].output])
         elif backbone == 'resnet50':
             frames_diff_cnn = ResNet50(input_shape = (size, size, 3), weights="imagenet", include_top = False)
             frames_diff_cnn = Model( inputs=[frames_diff_cnn.layers[0].input],outputs=[frames_diff_cnn.layers[32].output] )    
