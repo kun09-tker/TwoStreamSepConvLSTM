@@ -1,0 +1,2 @@
+model_checkpoint_path: "hk-inceptionv3_best_val_f1_Model"
+all_model_checkpoint_paths: "hk-inceptionv3_best_val_f1_Model"
