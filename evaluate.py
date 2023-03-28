@@ -67,7 +67,7 @@ def evaluate(args, data_test):
                                 # sample = False,
                                 type_part=type_part,
                                 batch_size = batch_size,
-                                shuffle = False,
+                                shuffle = True,
                                 resize = input_heatmap_size,
                                 target_heatmap = vid_len,
                                 data_augmentation=False,
