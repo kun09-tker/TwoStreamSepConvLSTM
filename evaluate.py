@@ -64,10 +64,10 @@ def evaluate(args, data_test):
     loss = 'binary_crossentropy'
 
     test_generator = DataGenerator(directory = f'{dirinp}/{data_test}.pkl',
-                                # sample = False,
+                                sample = False,
                                 type_part=type_part,
                                 batch_size = batch_size,
-                                shuffle = True,
+                                shuffle = False,
                                 resize = input_heatmap_size,
                                 target_heatmap = vid_len,
                                 data_augmentation=False,

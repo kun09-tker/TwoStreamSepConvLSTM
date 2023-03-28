@@ -79,7 +79,7 @@ def train(args):
                                     sample=False,
                                     type_part=type_part,
                                     batch_size = batch_size,
-                                    shuffle = True,
+                                    shuffle = False,
                                     resize = input_heatmap_size,
                                     target_heatmap = vid_len,
                                     data_augmentation=False,
