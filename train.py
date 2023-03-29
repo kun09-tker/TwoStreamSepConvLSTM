@@ -132,7 +132,7 @@ def train(args):
     save_training_history = SaveTrainingCurves(save_path = historySavePath)
 
     callback_list = [
-                    modelcheckpoint,
+                    # modelcheckpoint,
                     modelcheckpointTrain,
                     save_training_history
                     ]
