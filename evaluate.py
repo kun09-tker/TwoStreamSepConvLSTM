@@ -77,7 +77,7 @@ def evaluate(args, data_test):
     model = model_function(size=input_heatmap_size, seq_len=vid_len,cnn_trainable=False, mode=mode, frame_diff_interval=frame_diff_interval, backbone=backbone)
     optimizer = Adam(learning_rate=initial_learning_rate, amsgrad=True)
     model.compile(optimizer=optimizer, loss=loss, metrics=["acc", precision_m, recall_m, f1_m]) 
-    model.load_weights(f'{currentModelPath}')
+    model.load_weights(f'{currentModelPath}').expect_partial()
     model.trainable = False
         
     print('> Summary of the model : ')
