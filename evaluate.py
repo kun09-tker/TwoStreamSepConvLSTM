@@ -80,6 +80,7 @@ def evaluate(args, data_test):
     model.load_weights(f'{currentModelPath}').expect_partial()
     model.trainable = False
         
+        
     print('> Summary of the model : ')
     model.summary(line_length=140)
     print('> Optimizer : ', model.optimizer.get_config())
