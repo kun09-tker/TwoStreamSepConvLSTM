@@ -7,7 +7,7 @@ from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.layers import LeakyReLU, Conv3D, Multiply, MaxPooling3D, MaxPooling2D, Concatenate, Add
 from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
-from .sep_conv_rnn import SepConvLSTM2D
+# from .sep_conv_rnn import SepConvLSTM2D
 
 def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainable = True, lstm_type='sepconv', weight_decay = 2e-5, frame_diff_interval = 1, mode = "both", cnn_dropout = 0.25, lstm_dropout = 0.25, dense_dropout = 0.3, seed = 42, backbone='mobilenetv2'):
     """parameters:
@@ -57,7 +57,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         frames_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_1_' )(frames_cnn)
 
         if lstm_type == 'sepconv':
-            frames_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
+            frames_lstm = ConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_1', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_cnn)
 
         frames_lstm = BatchNormalization( axis = -1 )(frames_lstm)
     if differences:
@@ -82,7 +82,7 @@ def getProposedModelC(size=224, seq_len=32 , cnn_weight = 'imagenet',cnn_trainab
         frames_diff_cnn = TimeDistributed( Dropout(cnn_dropout, seed=seed) ,name='dropout_2_' )(frames_diff_cnn)
 
         if lstm_type == 'sepconv':
-            frames_diff_lstm = SepConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
+            frames_diff_lstm = ConvLSTM2D( filters = 64, kernel_size=(3, 3), padding='same', return_sequences=False, dropout=lstm_dropout, recurrent_dropout=lstm_dropout, name='SepConvLSTM2D_2', kernel_regularizer=l2(weight_decay), recurrent_regularizer=l2(weight_decay))(frames_diff_cnn)
 
         frames_diff_lstm = BatchNormalization( axis = -1 )(frames_diff_lstm)
 

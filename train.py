@@ -60,7 +60,7 @@ def train(args):
     else:
         currentModelPath = resume_path
     
-    bestValPath =  os.path.join(save_path, str(dataset) + '_best_Model')
+    bestValPath =  os.path.join(save_path, str(dataset) + '_best_Model.h5')
     # bestValPath =  os.path.join(save_path, str(dataset) + '_best_train_f1_Model')
 
     cnn_trainable = bool(args.cnnTrainable)
