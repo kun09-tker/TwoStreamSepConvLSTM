@@ -56,12 +56,12 @@ def train(args):
     frame_diff_interval = 1
 
     if resume_path == "NOT_SET":
-        currentModelPath =  os.path.join(save_path , str(dataset) + '_currentModel')
+        currentModelPath =  os.path.join(save_path , str(dataset) + '_currentModel.h5')
     else:
         currentModelPath = resume_path
     
-    bestValPath_val =  os.path.join(save_path, str(dataset) + '_best_val_f1_Model')
-    bestValPath_train =  os.path.join(save_path, str(dataset) + '_best_train_f1_Model')
+    bestValPath =  os.path.join(save_path, str(dataset) + '_best_Model.h5')
+    # bestValPath =  os.path.join(save_path, str(dataset) + '_best_train_f1_Model')
 
     cnn_trainable = bool(args.cnnTrainable)
     loss = 'binary_crossentropy'
@@ -120,13 +120,13 @@ def train(args):
     #--------------------------------------------------
 
     modelcheckpoint = ModelCheckpoint(
-        currentModelPath, monitor='loss', verbose=0, save_best_only=False, save_weights_only=True, mode='auto', save_freq='epoch')
+        currentModelPath, monitor='loss', verbose=1, save_best_only=False, save_weights_only=True, mode='auto', save_freq='epoch')
         
     modelcheckpointTrain = ModelCheckpoint(
-        bestValPath_train, monitor='f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
+        bestValPath, monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
     
-    modelcheckpointVal = ModelCheckpoint(
-        bestValPath_val, monitor='val_f1_m', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
+    # modelcheckpointVal = ModelCheckpoint(
+    #     bestValPath_val, monitor='val_f1_m', verbose=1, save_best_only=True, save_weights_only=True, mode='auto', save_freq='epoch')
 
     historySavePath = os.path.join(save_path, 'results', str(dataset))
     save_training_history = SaveTrainingCurves(save_path = historySavePath)
@@ -134,7 +134,6 @@ def train(args):
     callback_list = [
                     modelcheckpoint,
                     modelcheckpointTrain,
-                    modelcheckpointVal,
                     save_training_history
                     ]
                     
