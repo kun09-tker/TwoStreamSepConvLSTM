@@ -1,2 +1,0 @@
-model_checkpoint_path: "hk-yolox_best_val_f1_Model"
-all_model_checkpoint_paths: "hk-yolox_best_val_f1_Model"
